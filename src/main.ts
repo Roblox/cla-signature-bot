@@ -1,20 +1,15 @@
-import * as core from "@actions/core"
-import { context } from "@actions/github"
-import { getclas } from "./checkcla"
-import { lockPullRequest } from "./pullRequestLock"
+import * as core from "@actions/core";
+import { ClaRunner } from "./claRunner";
+import * as inputHelper from "./inputHelper";
 
 export async function run() {
-  try {
-    const pullRequestNo: number = context.issue.number
-    core.info("CLA Assistant GitHub Action has started")
-    core.info("the PR No is " + JSON.stringify(pullRequestNo))
-    if (context.payload.action === "closed") {
-      return lockPullRequest(pullRequestNo)
-    } else {
-      await getclas(pullRequestNo)
+    try {
+        const runner = new ClaRunner({ inputSettings: inputHelper.getInputs() });
+        core.info("Starting CLA Assistant GitHub Action");
+        await runner.execute();
+        core.info("CLA processing complete.");
+    } catch (error) {
+        core.setFailed(`Error: "${error.message}" Details: "${JSON.stringify(error)}"`);
     }
-  } catch (error) {
-    core.setFailed(error.message)
-  }
 }
-run()
+run();
