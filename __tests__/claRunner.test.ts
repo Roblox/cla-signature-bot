@@ -1,0 +1,219 @@
+import { ClaRunner} from "../src/claRunner"
+import { GitHub } from '@actions/github';
+import { IInputSettings } from "../src/inputSettings"
+import { Whitelist } from "../src/claWhitelist";
+import { PullAuthors } from "../src/pullAuthors";
+import { Author } from "../src/authorMap";
+import { ClaFileRepository } from "../src/claFileRepository";
+import { ClaFile } from "../src/claFile";
+import { PullComments } from "../src/pullComments";
+import { SignEvent } from "../src/signEvent";
+import { BlockchainPoster } from "../src/blockchainPoster";
+
+const mockGitHub = new GitHub("1234567890123456789012345678901234567890");
+
+function getSettings() {
+    return {
+        octokitLocal: mockGitHub
+    } as IInputSettings;
+}
+
+function getPullAuthorsMock(settings: IInputSettings): [PullAuthors, any] {
+    const authors = new PullAuthors(settings);
+
+    const getAuthorsSpy = jest.spyOn(authors, 'getAuthors')
+        .mockImplementation(async () => ([
+            new Author({
+                name: "SomeDude",
+                signed: false,
+                id: 1234
+            }),
+            new Author({
+                name: "SomeDudette",
+                signed: false,
+                id: 1235
+            }),
+            new Author({
+                name: "SomeEnby",
+                signed: false,
+                id: 1236
+            })
+        ]));
+
+    return [authors, getAuthorsSpy];
+}
+
+function getClaFileRepositoryMock(settings: IInputSettings): [ClaFileRepository, any, any] {
+    const fileRepo = new ClaFileRepository(settings);
+
+    const getFileSpy = jest.spyOn(fileRepo, 'getClaFile')
+        .mockImplementation(async () => {
+            return new ClaFile();
+        });
+
+    const commitFileSpy = jest.spyOn(fileRepo, 'commitClaFile')
+        .mockImplementation(async () => {
+            return new ClaFile();
+        });
+
+    return [fileRepo, getFileSpy, commitFileSpy];
+}
+
+function getPullCommentsMock(settings: IInputSettings): [PullComments, any, any]{
+    const pullComments = new PullComments(settings);
+
+    const setClaCommentSpy = jest.spyOn(pullComments, 'setClaComment')
+        .mockImplementation(async (params) => (""));
+
+    const getNewSignaturesSpy = jest.spyOn(pullComments, 'getNewSignatures')
+        .mockImplementation(async (params) => ([]));
+
+    return [pullComments, setClaCommentSpy, getNewSignaturesSpy];
+}
+
+function getBlockchainPosterMock(settings: IInputSettings): [BlockchainPoster, any] {
+    const blockchainPoster = new BlockchainPoster(settings);
+
+    const postToBlockchainSpy = jest.spyOn(blockchainPoster, 'postToBlockchain')
+        .mockImplementation(async () => ({}))
+
+    return [blockchainPoster, postToBlockchainSpy];
+}
+
+afterEach(() => {
+    jest.resetAllMocks();
+});
+
+it("Successfully constructs with full or empty settings", () => {
+    const fullSettings = {
+        blockchainStorageFlag: false,
+        blockchainWebhookEndpoint: "",
+        branch: "master",
+        claDocUrl: "",
+        claFilePath: "",
+        emptyCommitFlag: false,
+        isRemoteRepo: true,
+        localAccessToken: "",
+        octokitLocal: new GitHub(""),
+        octokitRemote: new GitHub(""),
+        payloadAction: "",
+        pullRequestNumber: 1,
+        repositoryAccessToken: "",
+        repositoryName: "name",
+        repositoryOwner: "owner",
+        signatureRegex: /.*/,
+        signatureText: "signature",
+        whitelist: ""
+    } as IInputSettings;
+
+    const runner = new ClaRunner({inputSettings: fullSettings});
+
+    // And constructing with an empty object should also not fail
+    const otherRunner = new ClaRunner({inputSettings: {} as IInputSettings});
+});
+
+it('Locks the PR when the PR is closed', async () => {
+    const lockCommentSpy = jest.spyOn(mockGitHub.issues, 'lock')
+        .mockImplementation(async (params) => ({
+            data: {},
+            status: 200,
+            headers: {
+                date: "",
+                "x-Octokit-media-type": "",
+                "x-Octokit-request-id": "",
+                "x-ratelimit-limit": "",
+                "x-ratelimit-remaining": "",
+                "x-ratelimit-reset": "",
+                link: "",
+                "last-modified": "",
+                etag: "",
+                status: "200",
+            },
+            [Symbol.iterator]: () => ({next: () =>  { return { value: null, done: true}}}),
+        }));
+
+    const settings = getSettings();
+    settings.payloadAction = "closed";
+    const runner = new ClaRunner({inputSettings: settings});
+    const result = await runner.execute();
+
+    expect(result).toStrictEqual(true);
+    expect(lockCommentSpy).toHaveBeenCalledTimes(1);
+});
+
+it('Returns early if there are no authors', async () => {
+    const settings = getSettings();
+    const whitelist = new Whitelist("SomeDude,SomeDudette,SomeEnby");
+
+    const [authors, getAuthorsSpy] = getPullAuthorsMock(settings);
+
+    const runner = new ClaRunner({
+        inputSettings: settings,
+        claWhitelist: whitelist,
+        pullAuthors: authors
+        });
+    const result = await runner.execute();
+
+    expect(result).toStrictEqual(true);
+    expect(getAuthorsSpy).toHaveBeenCalledTimes(1);
+});
+
+it ('Fails if not everyone has signed', async () => {
+    const settings = getSettings();
+
+    const [authors] = getPullAuthorsMock(settings);
+    const [claFileRepo] = getClaFileRepositoryMock(settings);
+    const [pullComments, , getNewSignaturesSpy] = getPullCommentsMock(settings);
+
+    const runner = new ClaRunner({
+        inputSettings: settings,
+        pullAuthors: authors,
+        claRepo: claFileRepo,
+        pullComments: pullComments,
+    });
+
+    const result = await runner.execute();
+
+    expect(result).toStrictEqual(false);
+    expect(getNewSignaturesSpy).toHaveBeenCalledTimes(1);
+});
+
+it('succeeds if a new signature makes everyone signed', async () => {
+    const settings = getSettings();
+    settings.whitelist = "SomeDude,SomeDudette";
+    settings.pullRequestNumber = 86;
+
+    const [authors] = getPullAuthorsMock(settings);
+    const [claFileRepo, , commitFileSpy] = getClaFileRepositoryMock(settings);
+    const [blockchainPoster, postToBlockchainSpy] = getBlockchainPosterMock(settings);
+
+    const pullComments = new PullComments(settings);
+    const setClaCommentSpy = jest.spyOn(pullComments, 'setClaComment')
+        .mockImplementation(async (params) => (""));
+    const getNewSignaturesSpy = jest.spyOn(pullComments, 'getNewSignatures')
+        .mockImplementation(async (authorMap) => ([
+            {
+                comment_id: 23,
+                created_at: "Right Here, Right Now",
+                id: 1236,
+                name: "SomeEnby",
+                pullRequestNo: 25,
+                repoId: 123456789
+            } as SignEvent
+        ]));
+
+    const runner = new ClaRunner({
+        inputSettings: settings,
+        pullAuthors: authors,
+        claRepo: claFileRepo,
+        pullComments: pullComments,
+        blockchainPoster: blockchainPoster,
+    });
+
+    const result = await runner.execute();
+    expect(result).toStrictEqual(true);
+    expect(getNewSignaturesSpy).toHaveBeenCalledTimes(1);
+    expect(setClaCommentSpy).toHaveBeenCalledTimes(1);
+    expect(commitFileSpy).toHaveBeenCalledTimes(1);
+    expect(postToBlockchainSpy).toHaveBeenCalledTimes(1);
+});
