@@ -61,8 +61,8 @@ query($owner:String! $name:String! $number:Int! $cursor:String!){
         try {
             // TODO: Pagination on large queries.
             const result = await this.settings.octokitLocal.graphql(this.getCommitAuthorsQuery, {
-                owner: this.settings.repositoryOwner,
-                name: this.settings.repositoryName,
+                owner: this.settings.localRepositoryOwner,
+                name: this.settings.localRepositoryName,
                 number: this.settings.pullRequestNumber,
                 cursor: ''
             });

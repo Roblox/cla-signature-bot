@@ -34,8 +34,8 @@ export class ClaFileRepository {
     private async getOrCreateClaFile(): Promise<[ClaFile, string]> {
         try {
             const fileResult = await this.settings.octokitRemote.repos.getContents({
-                owner: this.settings.repositoryOwner,
-                repo: this.settings.repositoryName,
+                owner: this.settings.remoteRepositoryOwner,
+                repo: this.settings.remoteRepositoryName,
                 path: this.settings.claFilePath,
                 ref: this.settings.branch,
             });
@@ -65,8 +65,8 @@ export class ClaFileRepository {
         claFile: ClaFile,
         fileSha?: string): Promise<Octokit.Response<Octokit.ReposCreateOrUpdateFileResponse>> {
         return await this.settings.octokitRemote.repos.createOrUpdateFile({
-            owner: this.settings.repositoryOwner,
-            repo: this.settings.repositoryName,
+            owner: this.settings.remoteRepositoryOwner,
+            repo: this.settings.remoteRepositoryName,
             path: this.settings.claFilePath,
             branch: this.settings.branch,
             message: commitMessage,

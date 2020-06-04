@@ -29,10 +29,13 @@ export function getInputs(): IInputSettings {
     const required = { required: true } as core.InputOptions;
 
     // The repo name should be owner/repo-name and needs to be split to be used.
-    [settings.repositoryOwner, settings.repositoryName] = ParseRepoName(
+    [settings.remoteRepositoryOwner, settings.remoteRepositoryName] = ParseRepoName(
         core.getInput("remote-repo-name", remoteRequired) ||
         context.repo.owner + "/" + context.repo.repo);
     settings.repositoryAccessToken = core.getInput("remote-repo-pat", remoteRequired) || settings.localAccessToken;
+
+    settings.localRepositoryOwner = context.repo.owner;
+    settings.localRepositoryName = context.repo.repo;
 
     settings.claFilePath = core.getInput("path-to-signatures") || "signatures/cla.json";
     settings.branch = core.getInput("branch") || "master";

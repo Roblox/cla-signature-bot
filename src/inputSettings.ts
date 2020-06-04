@@ -19,12 +19,22 @@ export interface IInputSettings {
     /**
      * The name of the repository where the CLA file is stored.
      */
-    repositoryName: string
+    remoteRepositoryName: string
 
     /**
      * The owner account of the repository where the CLA file is stored.
      */
-    repositoryOwner: string
+    remoteRepositoryOwner: string
+
+    /**
+     * The name of the repository where the CLA file is stored.
+     */
+    localRepositoryName: string
+
+    /**
+     * The owner account of the repository where the CLA file is stored.
+     */
+    localRepositoryOwner: string
 
     /**
      * The PAT for accessing the repository where the CLA file is stored.

@@ -80,8 +80,8 @@ export class ClaRunner {
         core.info("Locking the pull request to safe guard the pull request's CLA signatures.");
         try {
             await this.settings.octokitLocal.issues.lock({
-                owner: this.settings.repositoryOwner,
-                repo: this.settings.repositoryName,
+                owner: this.settings.localRepositoryOwner,
+                repo: this.settings.localRepositoryName,
                 issue_number: this.settings.pullRequestNumber
             });
             core.info(`Successfully locked pull request '${this.settings.pullRequestNumber}'.`);

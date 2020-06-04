@@ -59,8 +59,10 @@ it('sets defaults', () => {
     expect(settings.blockchainWebhookEndpoint).toBeTruthy();
     expect(settings.branch).toBe('master');
     expect(settings.claDocUrl).toBe('some/path/to/a/doc.md');
-    expect(settings.repositoryName).toBe("some-repo");
-    expect(settings.repositoryOwner).toBe("some-owner");
+    expect(settings.remoteRepositoryName).toBe("some-repo");
+    expect(settings.remoteRepositoryOwner).toBe("some-owner");
+    expect(settings.localRepositoryName).toBe("some-repo");
+    expect(settings.localRepositoryOwner).toBe("some-owner");
     expect(settings.repositoryAccessToken).toBe(settings.localAccessToken);
     expect(settings.claFilePath).toBeTruthy();
     expect(settings.whitelist).toBeFalsy();
@@ -71,6 +73,7 @@ it('sets defaults', () => {
 })
 
 it('Rejects invalid repository name arguments', () => {
+    inputs["url-to-cladocument"] = "some/path/to/a/doc.md";
     inputs["use-remote-repo"] = "true";
     inputs["remote-repo-name"] = "a-bad-repo-name";
     inputs["remote-repo-pat"] = "1234567890123456789012345678901234567890";

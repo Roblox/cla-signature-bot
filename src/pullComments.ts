@@ -16,8 +16,8 @@ export class PullComments {
     // public async addEmptyCommit(authorName: string) {
     //     core.info(`Adding empty commit to record that ${authorName} signed the CLA.`)
     //     try {
-    //         const owner = this.settings.repositoryOwner;
-    //         const repo = this.settings.repositoryName;
+    //         const owner = this.settings.localRepositoryOwner;
+    //         const repo = this.settings.localRepositoryName;
     //         const octokit = this.settings.octokitLocal;
 
     //         // Get the pull request attached to this issue
@@ -70,16 +70,16 @@ export class PullComments {
         const existingComment = await this.getExistingComment();
         if (!existingComment) {
             let result = await this.settings.octokitLocal.issues.createComment({
-                owner: this.settings.repositoryOwner,
-                repo: this.settings.repositoryName,
+                owner: this.settings.localRepositoryOwner,
+                repo: this.settings.localRepositoryName,
                 issue_number: this.settings.pullRequestNumber,
                 body: commentContent
             });
             return result.data.body;
         } else {
             let result = await this.settings.octokitLocal.issues.updateComment({
-                owner: this.settings.repositoryOwner,
-                repo: this.settings.repositoryName,
+                owner: this.settings.localRepositoryOwner,
+                repo: this.settings.localRepositoryName,
                 comment_id: existingComment.id,
                 body: commentContent
             });
@@ -90,8 +90,8 @@ export class PullComments {
     private async getExistingComment() {
         try {
             const response = await this.settings.octokitLocal.issues.listComments({
-                owner: this.settings.repositoryOwner,
-                repo: this.settings.repositoryName,
+                owner: this.settings.localRepositoryOwner,
+                repo: this.settings.localRepositoryName,
                 issue_number: this.settings.pullRequestNumber
             });
             return response.data.find(c => c.body.match(/.*CLA Assistant Lite.*/));
@@ -146,8 +146,8 @@ ${authorText}
 
         const [commentList, repoId] = await Promise.all([
             this.settings.octokitLocal.issues.listComments({
-                owner: this.settings.repositoryOwner,
-                repo: this.settings.repositoryName,
+                owner: this.settings.localRepositoryOwner,
+                repo: this.settings.localRepositoryName,
                 issue_number: this.settings.pullRequestNumber
             }),
             this.getRepoId()]);
@@ -169,8 +169,8 @@ ${authorText}
 
     private async getRepoId(): Promise<number> {
         return (await this.settings.octokitLocal.repos.get({
-            owner: this.settings.repositoryOwner,
-            repo: this.settings.repositoryName
+            owner: this.settings.localRepositoryOwner,
+            repo: this.settings.localRepositoryName
         })).data.id;
     }
 }
