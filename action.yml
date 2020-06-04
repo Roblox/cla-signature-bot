@@ -36,7 +36,7 @@ inputs:
     default: "I have read the CLA Document and I hereby sign the CLA"
   signature-regex:
     description: "The regex to locate the signature text. Should be single quoted. Note that comment bodies are toUpperCase'd before matching."
-    default: '/^.*I \s*HAVE \s*READ \s*THE \s*CLA \s*DOCUMENT \s*AND \s*I \s*HEREBY \s*SIGN \s*THE \s*CLA.*$/''
+    default: '/^.*I \s*HAVE \s*READ \s*THE \s*CLA \s*DOCUMENT \s*AND \s*I \s*HEREBY \s*SIGN \s*THE \s*CLA.*$/'
 runs:
   using: "node12"
   main: "lib/main.js"
