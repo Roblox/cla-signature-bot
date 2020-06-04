@@ -19,11 +19,11 @@ const sha = '1234567890123456789012345678901234567890';
 beforeAll(() => {
     // Mock getInput with something resembling the real deal for exception handling.
     jest.spyOn(core, 'getInput').mockImplementation((name: string, options?: core.InputOptions) => {
-        const val: string = inputs[name]
+        const val: string = inputs[name];
         if (options && options.required && !val) {
-            throw new Error(`Input required and not supplied: ${name}`)
-        }
-        return val
+            throw new Error(`Input required and not supplied: ${name}`);
+        };
+        return val;
     })
 
     // Mock github context
@@ -31,7 +31,7 @@ beforeAll(() => {
         return {
             owner: 'some-owner',
             repo: 'some-repo'
-        }
+        };
     });
     github.context.ref = ref;
     github.context.sha = sha;
@@ -39,71 +39,73 @@ beforeAll(() => {
 
 beforeEach(() => {
     // Reset inputs
-    inputs = {}
+    inputs = {};
 })
 
 afterAll(() => {
     // Restore @actions/github context
-    github.context.ref = originalContext.ref
-    github.context.sha = originalContext.sha
+    github.context.ref = originalContext.ref;
+    github.context.sha = originalContext.sha;
 
     // Reset mock objects
-    jest.restoreAllMocks()
+    jest.restoreAllMocks();
 })
 
 it('sets defaults', () => {
-    inputs["path-To-cladocument"] = "some/path/to/a/doc.md"
-    const settings: IInputSettings = inputHelper.getInputs()
-    expect(settings).toBeTruthy()
-    expect(settings.blockchainStorageFlag).toBe(false)
-    expect(settings.blockchainWebhookEndpoint).toBeTruthy()
-    expect(settings.branch).toBe('master')
-    expect(settings.claDocUrl).toBe('some/path/to/a/doc.md')
-    expect(settings.repositoryName).toBe("some-repo")
-    expect(settings.repositoryOwner).toBe("some-owner")
-    expect(settings.repositoryAccessToken).toBe(settings.localAccessToken)
-    expect(settings.claFilePath).toBeTruthy()
-    expect(settings.whitelist).toBeFalsy()
-    expect(settings.emptyCommitFlag).toBe(false)
+    inputs["url-to-cladocument"] = "some/path/to/a/doc.md";
+    const settings: IInputSettings = inputHelper.getInputs();
+    expect(settings).toBeTruthy();
+    expect(settings.blockchainStorageFlag).toBe(false);
+    expect(settings.blockchainWebhookEndpoint).toBeTruthy();
+    expect(settings.branch).toBe('master');
+    expect(settings.claDocUrl).toBe('some/path/to/a/doc.md');
+    expect(settings.repositoryName).toBe("some-repo");
+    expect(settings.repositoryOwner).toBe("some-owner");
+    expect(settings.repositoryAccessToken).toBe(settings.localAccessToken);
+    expect(settings.claFilePath).toBeTruthy();
+    expect(settings.whitelist).toBeFalsy();
+    expect(settings.emptyCommitFlag).toBe(false);
 
-    expect(settings.octokitRemote).toBeTruthy()
-    expect(settings.octokitLocal).toBeTruthy()
+    expect(settings.octokitRemote).toBeTruthy();
+    expect(settings.octokitLocal).toBeTruthy();
 })
 
 it('Rejects invalid repository name arguments', () => {
-    inputs["use-remote-repo"] = "true"
-    inputs["remote-repo-name"] = "a-bad-repo-name"
-    inputs["remote-repo-pat"] = "1234567890123456789012345678901234567890"
+    inputs["use-remote-repo"] = "true";
+    inputs["remote-repo-name"] = "a-bad-repo-name";
+    inputs["remote-repo-pat"] = "1234567890123456789012345678901234567890";
     assert.throws(() => inputHelper.getInputs());
 })
 
 it('requires a pat with remote repo', () => {
-    inputs["path-To-cladocument"] = "some/path/to/a/doc.md"
-    inputs["use-remote-repo"] = "true"
+    inputs["url-to-cladocument"] = "some/path/to/a/doc.md";
+    inputs["use-remote-repo"] = "true";
 
     // Throws because neither a repo name nor a PAT are supplied
-    assert.throws(() => {
-        inputHelper.getInputs()
-    })
+    expect(() => inputHelper.getInputs()).toThrow();
 
     // Still throws because a PAT isn't supplied
-    inputs["remote-repo-name"] = "someowner/somerepo"
-    inputs["remote-repo-pat"] = null
-    assert.throws(() => {
-        inputHelper.getInputs()
-    })
+    inputs["remote-repo-name"] = "someowner/somerepo";
+    inputs["remote-repo-pat"] = null;
+    expect(() => inputHelper.getInputs()).toThrow();
 
     // Still throws when only the PAT is supplied
-    inputs["remote-repo-name"] = null
-    inputs["remote-repo-pat"] = "1234567890123456789012345678901234567890"
-    assert.throws(() => {
-        inputHelper.getInputs()
-    })
+    inputs["remote-repo-name"] = null;
+    inputs["remote-repo-pat"] = "1234567890123456789012345678901234567890";
+    expect(() => inputHelper.getInputs()).toThrow();
 
     // Doesn't throw when both are supplied.
-    inputs["remote-repo-name"] = "someowner/somerepo"
-    inputs["remote-repo-pat"] = "1234567890123456789012345678901234567890"
-    assert.doesNotThrow(() => {
-        inputHelper.getInputs()
-    })
-})
+    inputs["remote-repo-name"] = "someowner/somerepo";
+    inputs["remote-repo-pat"] = "1234567890123456789012345678901234567890";
+    expect(inputHelper.getInputs()).toBeTruthy();
+});
+
+it("Throws if signature regex doesn't match signature text", () => {
+    inputs["url-to-cladocument"] = "some/path/to/a/doc.md";
+    inputs["signature-text"] = "sometext";
+    expect(() => inputHelper.getInputs()).toThrow();
+
+    // But not if the text matches
+    inputs["signature-text"] = undefined;
+    expect(inputHelper.getInputs()).toBeTruthy();
+});

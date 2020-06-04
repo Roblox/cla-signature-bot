@@ -5,13 +5,13 @@ Streamline your workflow and let this GitHub Action(a lite version of [CLA Assis
 
 ### Features
 1. decentralized data storage
-1. fully integrated with github environment 
+1. fully integrated with github environment
 1. no UI  required
 1. no need for permission/scope handling
 1. contributors can sign the CLA by just posting a Pull Request comment
 1. signatures will be stored in a file inside the repository plus optionally on the Ethereum Blockchain
 
-## Configure Contributor License Agreement within two minutes 
+## Configure Contributor License Agreement within two minutes
 
 #### 1. Add the following Workflow File to your repository in this path`.github/workflows/cla.yml`
 
@@ -22,7 +22,7 @@ on:
     types: [created]
   pull_request:
     types: [opened,closed,synchronize]
-    
+
 jobs:
   CLAssistant:
     runs-on: ubuntu-latest
@@ -31,11 +31,11 @@ jobs:
         if: (github.event.comment.body == 'recheckcla' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request'
         # Alpha Release
         uses: cla-assistant/github-action@v1.3.0-alpha
-        env: 
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with: 
+        with:
           path-to-signatures: 'signatures/version1/cla.json'
-          path-To-cladocument: 'https://github.com/ibakshay/test-action-workflow/blob/master/cla.md'
+          url-to-cladocument: 'https://github.com/ibakshay/test-action-workflow/blob/master/cla.md'
           # branch should not be protected
           branch: 'master'
           whitelist: user1,user2,bot*
@@ -46,12 +46,12 @@ jobs:
 
 #### 2. Pull Request event triggers CLA Workflow
 
-CLA action workflow will be triggered on all Pull Request `opened, synchronize, closed`. 
-<br/> When the CLA workflow is triggered on pull request `closed` event, it will lock the Pull Request conversation after the Pull Request merge so that the contributors cannot modify or delete the signatures (Pull Request comment) later. This feature is optional. 
+CLA action workflow will be triggered on all Pull Request `opened, synchronize, closed`.
+<br/> When the CLA workflow is triggered on pull request `closed` event, it will lock the Pull Request conversation after the Pull Request merge so that the contributors cannot modify or delete the signatures (Pull Request comment) later. This feature is optional.
 
 #### 3. Signing the CLA
 CLA workflow creates a comment on Pull Request asking contributors who have not signed  CLA to sign and also fails the pull request status check with a `failure`. The contributors are requested to sign the CLA within the pull request by copy and pasting **"I have read the CLA Document and I hereby sign the CLA"** as a Pull Request comment like below.
-If the contributor has already signed the CLA, then the PR status will pass with `success`. <br/> By default, this  Action workflow will also create an empty commit with a message  **"@#contributorname# has signed the CLA"** whenever a contributor signs the CLA. 
+If the contributor has already signed the CLA, then the PR status will pass with `success`. <br/> By default, this  Action workflow will also create an empty commit with a message  **"@#contributorname# has signed the CLA"** whenever a contributor signs the CLA.
 
 ![Screenshot 2020-02-13 at 10 24 17](https://user-images.githubusercontent.com/33329946/74420003-0ca6e780-4e4b-11ea-85a7-4ccc3f53e3d5.png)
 
@@ -69,7 +69,7 @@ If a GitHub username is included in the whitelist, they will not be required to 
 
 #### 6. Signatures can be additionally stored on the Ethereum Blockchain
 
-To make the whole process more fraud resistant we grant the option to additionally store the signatures on the Ethereum Blockchain. To use this feature just set the `blockchain-storage-flag: true`. A detailed description on integrating with the Ethereum Blockchain can be found [here](https://github.com/cla-assistant/blockchain-services) - special credits and thanks goes to [@FabianRiewe](https://github.com/fabianriewe).  
+To make the whole process more fraud resistant we grant the option to additionally store the signatures on the Ethereum Blockchain. To use this feature just set the `blockchain-storage-flag: true`. A detailed description on integrating with the Ethereum Blockchain can be found [here](https://github.com/cla-assistant/blockchain-services) - special credits and thanks goes to [@FabianRiewe](https://github.com/fabianriewe).
 
 
 
@@ -92,7 +92,7 @@ To make the whole process more fraud resistant we grant the option to additional
 | `whitelist`   | _optional_ | You can specify users and bots to be [whitelisted](https://github.com/cla-assistant/github-action#5-whitelisting-users-and-bots). For example `user1,user2,bot*`  |
 | `blockchain-storage-flag`     | _optional_ |  provide the boolean `true` or `false` to optionally store the Contributor's signature data in the Ethereum blockchain. Default is `false` |
 
-This action won't work for Pull Request coming from the forks as the [GitHub Action Token](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token) does not have write access for the forks, However, the GitHub team assured in one of the [discussion](https://github.community/t5/GitHub-Actions/Github-Workflow-not-running-from-pull-request-from-forked/m-p/32979#M1325) that they will ship this feature to enable read/write access for the PRs coming from the forks. 
+This action won't work for Pull Request coming from the forks as the [GitHub Action Token](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token) does not have write access for the forks, However, the GitHub team assured in one of the [discussion](https://github.community/t5/GitHub-Actions/Github-Workflow-not-running-from-pull-request-from-forked/m-p/32979#M1325) that they will ship this feature to enable read/write access for the PRs coming from the forks.
 
 ## License
 
@@ -120,4 +120,3 @@ Credits
     <img src="https://raw.githubusercontent.com/reviewninja/review.ninja/master/sap_logo.png" title="SAP" />
 <p align="center">
 :heart: from the GitHub team @SAP
-

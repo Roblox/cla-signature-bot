@@ -41,12 +41,17 @@ export function getInputs(): IInputSettings {
     settings.signatureText = core.getInput("signature-text") || "I have read the CLA Document and I hereby sign the CLA";
     settings.signatureRegex = new RegExp(core.getInput("signature-regex") || /^.*I \s*HAVE \s*READ \s*THE \s*CLA \s*DOCUMENT \s*AND \s*I \s*HEREBY \s*SIGN \s*THE \s*CLA.*$/);
 
+    if (!settings.signatureText.toUpperCase().match(settings.signatureRegex)) {
+        throw new Error("Signature RegEx does not match against Signature Text. Confirm valid RegEx.");
+    }
+
     settings.blockchainWebhookEndpoint = core.getInput('blockchain-webhook-endpoint') ||
         'https://u9afh6n36g.execute-api.eu-central-1.amazonaws.com/dev/webhook';
     settings.blockchainStorageFlag = (core.getInput('blockchain-storage-flag') || 'FALSE').toUpperCase() === 'TRUE';
 
+    // This is technically deprecated, see the note in pullComments.ts on why.
     settings.emptyCommitFlag = (core.getInput('empty-commit-flag') || 'FALSE').toUpperCase() === 'TRUE';
-    settings.claDocUrl = core.getInput('path-To-cladocument', required);
+    settings.claDocUrl = core.getInput('url-to-cladocument', required);
 
     settings.octokitLocal = new GitHub(settings.localAccessToken);
     settings.octokitRemote = new GitHub(settings.repositoryAccessToken);

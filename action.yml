@@ -1,27 +1,42 @@
-name: "CLA assistant lite"
+name: "CLA Assistant Lite"
 description: "An action to handle the Contributor License Agreement"
 author: "SAP"
 branding:
   icon: "award"
   color: blue
 inputs:
+  url-to-cladocument:
+    description: "The URL for the CLA contract."
   path-to-signatures:
-    description: "Give a path for storing CLAs in a json file "
+    description: "Give a path for storing CLAs in a json file."
     default: "./signatures/cla.json"
   branch:
-    description: "select a branch where all the CLAs are stored"
+    description: "The branch where the CLAs will be stored."
     default: "master"
+  use-remote-repo:
+    description: "Whether to use a different repository for storing CLA signatures."
+    default: false
+  remote-repo-name:
+    description: "The name of the remote github repository for storing CLA signatures. Must be owner-name/repo-name format."
+    default: ""
+  remote-repo-pat:
+    description: "The personal access token to use when committing to the remote repository. Should be a github secrets reference."
+    default: ""
   blockchain-storage-flag:
-    description: "Optional functionality to store all the blockchain signatures in the ethirium blockchain as a smart contract"
+    description: "(Optional) Store all the blockchain signatures in the ethirium blockchain as a smart contract."
     default: false
-  label:
-    description: "Optional functionality to add the label CLA Signed or not signed"
-    default: false
-  empty-commit-flag:
-    description: "GitHub Actions will add empty commit whenever the user signs the CLA (optional)"
-    default: true
+  blockchain-webhook-endpoint:
+    description: "(Optional) The URL to post the blockchain request to."
+    default: "https://u9afh6n36g.execute-api.eu-central-1.amazonaws.com/dev/webhook"
   whitelist:
-    description: "whitelisted users don't have to sign the CLA document"
+    description: "Comma-separated list of users to exclude from CLA requirement. Can use * characters for wildcards."
+    default: ""
+  signature-text:
+    description: "The text to require as a signature."
+    default: "I have read the CLA Document and I hereby sign the CLA"
+  signature-regex:
+    description: "The regex to locate the signature text. Note that comment bodies are toUpperCase'd before matching."
+    default: "/^.*I \s*HAVE \s*READ \s*THE \s*CLA \s*DOCUMENT \s*AND \s*I \s*HEREBY \s*SIGN \s*THE \s*CLA.*$/"
 runs:
   using: "node12"
   main: "lib/main.js"
