@@ -9,7 +9,7 @@ inputs:
     description: "The URL for the CLA contract."
   path-to-signatures:
     description: "Give a path for storing CLAs in a json file."
-    default: "./signatures/cla.json"
+    default: "signatures/cla.json"
   branch:
     description: "The branch where the CLAs will be stored."
     default: "master"
