@@ -1,5 +1,5 @@
 import { ClaRunner} from "../src/claRunner"
-import { GitHub } from '@actions/github';
+import * as github from '@actions/github';
 import { IInputSettings } from "../src/inputSettings"
 import { Whitelist } from "../src/claWhitelist";
 import { PullAuthors } from "../src/pullAuthors";
@@ -9,8 +9,9 @@ import { ClaFile } from "../src/claFile";
 import { PullComments } from "../src/pullComments";
 import { SignEvent } from "../src/signEvent";
 import { BlockchainPoster } from "../src/blockchainPoster";
+import { PullCheckRunner } from "../src/pullCheckRunner";
 
-const mockGitHub = new GitHub("1234567890123456789012345678901234567890");
+const mockGitHub = github.getOctokit("1234567890123456789012345678901234567890");
 
 function getSettings() {
     return {
@@ -80,6 +81,15 @@ function getBlockchainPosterMock(settings: IInputSettings): [BlockchainPoster, a
     return [blockchainPoster, postToBlockchainSpy];
 }
 
+function getPullCheckRunnerMock(settings: IInputSettings): [PullCheckRunner, any] {
+    const pullCheckRunner = new PullCheckRunner(settings);
+
+    const rerunLastCheckSpy = jest.spyOn(pullCheckRunner, 'rerunLastCheck')
+        .mockImplementation(async () => {});
+
+        return [pullCheckRunner, rerunLastCheckSpy];
+}
+
 afterEach(() => {
     jest.resetAllMocks();
 });
@@ -94,13 +104,15 @@ it("Successfully constructs with full or empty settings", () => {
         emptyCommitFlag: false,
         isRemoteRepo: true,
         localAccessToken: "",
-        octokitLocal: new GitHub(""),
-        octokitRemote: new GitHub(""),
+        octokitLocal: github.getOctokit("1234567890123456789012345678901234567890"),
+        octokitRemote: github.getOctokit("1234567890123456789012345678901234567890"),
         payloadAction: "",
         pullRequestNumber: 1,
         repositoryAccessToken: "",
-        repositoryName: "name",
-        repositoryOwner: "owner",
+        localRepositoryName: "name",
+        localRepositoryOwner: "owner",
+        remoteRepositoryName: "name",
+        remoteRepositoryOwner: "owner",
         signatureRegex: /.*/,
         signatureText: "signature",
         whitelist: ""
@@ -115,6 +127,7 @@ it("Successfully constructs with full or empty settings", () => {
 it('Locks the PR when the PR is closed', async () => {
     const lockCommentSpy = jest.spyOn(mockGitHub.issues, 'lock')
         .mockImplementation(async (params) => ({
+            url: "",
             data: {},
             status: 200,
             headers: {
@@ -186,6 +199,7 @@ it('succeeds if a new signature makes everyone signed', async () => {
     const [authors] = getPullAuthorsMock(settings);
     const [claFileRepo, , commitFileSpy] = getClaFileRepositoryMock(settings);
     const [blockchainPoster, postToBlockchainSpy] = getBlockchainPosterMock(settings);
+    const [pullCheckRunner, rerunLastCheckSpy] = getPullCheckRunnerMock(settings);
 
     const pullComments = new PullComments(settings);
     const setClaCommentSpy = jest.spyOn(pullComments, 'setClaComment')
@@ -208,6 +222,7 @@ it('succeeds if a new signature makes everyone signed', async () => {
         claRepo: claFileRepo,
         pullComments: pullComments,
         blockchainPoster: blockchainPoster,
+        pullCheckRunner: pullCheckRunner,
     });
 
     const result = await runner.execute();
@@ -216,4 +231,5 @@ it('succeeds if a new signature makes everyone signed', async () => {
     expect(setClaCommentSpy).toHaveBeenCalledTimes(1);
     expect(commitFileSpy).toHaveBeenCalledTimes(1);
     expect(postToBlockchainSpy).toHaveBeenCalledTimes(1);
+    expect(rerunLastCheckSpy).toHaveBeenCalledTimes(1);
 });

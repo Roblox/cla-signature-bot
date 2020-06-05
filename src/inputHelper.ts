@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
-import { context, GitHub } from "@actions/github";
+import * as github from '@actions/github';
+import { context } from "@actions/github";
 import { IInputSettings } from "./inputSettings";
 
 function ParseRepoName(rawRepoName: string): [string, string] {
@@ -19,6 +20,8 @@ export function getInputs(): IInputSettings {
     // Standard context details dumped into an easy-to-read object.
     settings.pullRequestNumber = context.issue.number;
     settings.payloadAction = context.payload.action;
+    settings.pullRequestBranch = context.ref;
+    settings.workflowName = context.workflow;
     settings.localAccessToken = process.env["GITHUB_TOKEN"] as string;
 
     // Using a boolean setting makes the user's intention clear and easier to validate.
@@ -56,8 +59,8 @@ export function getInputs(): IInputSettings {
     settings.emptyCommitFlag = (core.getInput('empty-commit-flag') || 'FALSE').toUpperCase() === 'TRUE';
     settings.claDocUrl = core.getInput('url-to-cladocument', required);
 
-    settings.octokitLocal = new GitHub(settings.localAccessToken);
-    settings.octokitRemote = new GitHub(settings.repositoryAccessToken);
+    settings.octokitLocal = github.getOctokit(settings.localAccessToken);
+    settings.octokitRemote = github.getOctokit(settings.repositoryAccessToken);
 
     return settings;
 }

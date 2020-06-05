@@ -3,15 +3,15 @@ import * as github from '@actions/github'
 import * as core from '@actions/core'
 import * as inputHelper from '../src/inputHelper'
 
-import nock from 'nock';
 import { IInputSettings } from '../src/inputSettings'
-import { AssertionError } from 'assert'
 
 // Inputs for mock @actions/core
 let inputs = {} as any
 
 // Shallow clone original @actions/github context
 let originalContext = { ...github.context }
+
+process.env["GITHUB_TOKEN"] = "1234567890098765432112345678900987654321"
 
 const ref = 'refs/pull/232/merge';
 const sha = '1234567890123456789012345678901234567890';

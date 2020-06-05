@@ -1,15 +1,15 @@
 import { ClaFileRepository } from "../src/claFileRepository"
 import { IInputSettings } from "../src/inputSettings";
-import { GitHub } from '@actions/github';
+import * as github from '@actions/github';
 import { ClaFile } from "../src/claFile";
 import { Author } from "../src/authorMap";
 import { SignEvent } from "../src/signEvent";
 
-const mockGitHub = new GitHub("1234567890123456789012345678901234567890");
+const mockGitHub = github.getOctokit("1234567890123456789012345678901234567890");
 
 const settings = {
-    repositoryOwner: "some-owner",
-    repositoryName: "repo-name",
+    localRepositoryOwner: "some-owner",
+    localRepositoryName: "repo-name",
     claFilePath: "path/to/cla.json",
     branch: "master",
     octokitRemote: mockGitHub,
@@ -47,7 +47,7 @@ const claFile = new ClaFile(Buffer.from(JSON.stringify(fakeClaFileContents, null
 // works as intended.
 // Unfortunately this method relies on understanding what API methods are called by
 // the methods under test, but so would using nock so I don't feel too bad about it.
-function mockWith(sha: string, createSha: string, content?: ClaFile, multiple?: boolean) {
+function mockWith(sha: string, createSha: string, content?: ClaFile) {
     jest.resetAllMocks();
 
     let getContentsSpy;
@@ -57,54 +57,24 @@ function mockWith(sha: string, createSha: string, content?: ClaFile, multiple?: 
     } else {
         getContentsSpy = jest.spyOn(mockGitHub.repos, 'getContents')
         .mockImplementation(async (params) => ({
-            data: multiple? [{
+            url: "",
+            data: {
+                type: "string",
+                encoding: "",
+                size: 1024,
+                name: "cla.json",
+                path: "/signatures/cla.json",
+                content: content.toBase64(),
+                sha: sha,
+                url: "",
+                git_url: "",
+                html_url: "",
+                download_url: "",
                 _links: {
                     git: "",
                     html: "",
                     self: "",
                 },
-                download_url: "",
-                git_url: "",
-                html_url: "",
-                name: "",
-                path: "",
-                size: 5,
-                type: "string",
-                url: "",
-                content: content.toBase64(),
-                sha: sha
-            }, {
-                _links: {
-                    git: "",
-                    html: "",
-                    self: "",
-                },
-                download_url: "",
-                git_url: "",
-                html_url: "",
-                name: "",
-                path: "",
-                size: 5,
-                type: "string",
-                url: "",
-                content: content.toBase64(),
-                sha: sha
-            }] : {
-                _links: {
-                    git: "",
-                    html: "",
-                    self: "",
-                },
-                download_url: "",
-                git_url: "",
-                html_url: "",
-                name: "",
-                path: "",
-                size: 5,
-                type: "string",
-                url: "",
-                content: content.toBase64(),
-                sha: sha
             },
             status: 200,
             headers: {
@@ -123,64 +93,66 @@ function mockWith(sha: string, createSha: string, content?: ClaFile, multiple?: 
         }));
     }
 
-    let createOrUpdateSpy = jest.spyOn(mockGitHub.repos, 'createOrUpdateFile').mockImplementation(async (params) => ({
-        data: {
-            commit: {
-                author: {
-                    date: "",
-                    email: "someuser@example.com",
-                    name: "author",
-                },
-                committer: {
-                    date: "",
-                    email: "someuser@example.com",
-                    name: "committer",
-                },
-                html_url: "",
-                message: "Creating CLA signature file",
-                node_id: "akljsfglkjdnsfg",
-                sha: createSha,
-                parents: [],
-                tree: {
-                    sha: "idklol",
+    let createOrUpdateSpy = jest.spyOn(mockGitHub.repos, 'createOrUpdateFile')
+        .mockImplementation(async (params) => ({
+            url: "",
+            data: {
+                commit: {
+                    author: {
+                        date: "",
+                        email: "someuser@example.com",
+                        name: "author",
+                    },
+                    committer: {
+                        date: "",
+                        email: "someuser@example.com",
+                        name: "committer",
+                    },
+                    html_url: "",
+                    message: "Creating CLA signature file",
+                    node_id: "akljsfglkjdnsfg",
+                    sha: createSha,
+                    parents: [],
+                    tree: {
+                        sha: "idklol",
+                        url: "",
+                    },
                     url: "",
+                    verification: {
+                        payload: "null",
+                        reason: "",
+                        signature: "",
+                        verified: true
+                    }
                 },
-                url: "",
-                verification: {
-                    payload: null,
-                    reason: "",
-                    signature: null,
-                    verified: true
+                content: {
+                    _links: {self: "", html: "", git: ""},
+                    download_url: "",
+                    git_url: "",
+                    html_url: "",
+                    name: "cla.json",
+                    path: "path/to",
+                    sha: createSha,
+                    size: 1024,
+                    type: "file idk bro",
+                    url: "",
                 }
             },
-            content: {
-                _links: {self: "", html: "", git: ""},
-                download_url: "",
-                git_url: "",
-                html_url: "",
-                name: "cla.json",
-                path: "path/to",
-                sha: createSha,
-                size: 1024,
-                type: "file idk bro",
-                url: "",
-            }
-        },
-        status: 200,
-        headers: {
-            date: "",
-            "x-Octokit-media-type": "",
-            "x-Octokit-request-id": "",
-            "x-ratelimit-limit": "",
-            "x-ratelimit-remaining": "",
-            "x-ratelimit-reset": "",
-            link: "",
-            "last-modified": "",
-            etag: "",
-            status: "200",
-        },
-        [Symbol.iterator]: () => ({next: () =>  { return { value: null, done: true}}}),
-    }));
+            status: 200,
+            headers: {
+                date: "",
+                "x-Octokit-media-type": "",
+                "x-Octokit-request-id": "",
+                "x-ratelimit-limit": "",
+                "x-ratelimit-remaining": "",
+                "x-ratelimit-reset": "",
+                link: "",
+                "last-modified": "",
+                etag: "",
+                status: "200",
+            },
+            [Symbol.iterator]: () => ({next: () =>  { return { value: null, done: true}}}),
+        }));
 
     return [getContentsSpy, createOrUpdateSpy];
 }
@@ -238,14 +210,4 @@ it('Commits file after creating it', async () => {
 
     expect(getContentsSpy).toHaveBeenCalledTimes(1);
     expect(createOrUpdateSpy).toHaveBeenCalledTimes(2);
-});
-
-it ('throws if multiple files are returned', async () => {
-    const [getContentsSpy, createOrUpdateSpy] = mockWith("12345", "67890", claFile, true);
-    const fileRepo = new ClaFileRepository(settings);
-    expect(fileRepo.getClaFile()).rejects.toThrow();
-
-    // We expect to see get contents, but not create or update.
-    expect(getContentsSpy).toHaveBeenCalledTimes(1);
-    expect(createOrUpdateSpy).toHaveBeenCalledTimes(0);
 });

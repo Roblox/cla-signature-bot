@@ -65,7 +65,7 @@ query($owner:String! $name:String! $number:Int! $cursor:String!){
                 name: this.settings.localRepositoryName,
                 number: this.settings.pullRequestNumber,
                 cursor: ''
-            });
+            }) as any;
             if (result.repository.pullRequest.commits.totalCount > 100) {
                 throw new Error("Commit query has more than 100 commits and GraphQL pagination isn't supported yet! Can't validate all of the authors of this PR.")
             }

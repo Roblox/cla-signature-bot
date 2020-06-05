@@ -1,5 +1,4 @@
 import { IInputSettings } from "./inputSettings";
-import * as Octokit from "@octokit/rest";
 import { ClaFile } from "./claFile";
 
 export class ClaFileRepository {
@@ -63,7 +62,7 @@ export class ClaFileRepository {
     private async updateClaFile(
         commitMessage: string,
         claFile: ClaFile,
-        fileSha?: string): Promise<Octokit.Response<Octokit.ReposCreateOrUpdateFileResponse>> {
+        fileSha?: string): Promise<any> {
         return await this.settings.octokitRemote.repos.createOrUpdateFile({
             owner: this.settings.remoteRepositoryOwner,
             repo: this.settings.remoteRepositoryName,

@@ -6,6 +6,7 @@ import { Whitelist } from "./claWhitelist";
 import { IInputSettings } from "./inputSettings";
 import { PullComments } from './pullComments';
 import { PullAuthors } from './pullAuthors';
+import { PullCheckRunner } from './pullCheckRunner';
 
 export class ClaRunner {
     readonly settings: IInputSettings;
@@ -14,6 +15,7 @@ export class ClaRunner {
     readonly pullComments: PullComments;
     readonly pullAuthors: PullAuthors;
     readonly blockchainPoster: BlockchainPoster;
+    readonly pullCheckRunner: PullCheckRunner;
 
     constructor({
         inputSettings,
@@ -21,13 +23,15 @@ export class ClaRunner {
         claWhitelist,
         pullComments,
         pullAuthors,
-        blockchainPoster }: {
+        blockchainPoster,
+        pullCheckRunner }: {
             inputSettings: IInputSettings;
             claRepo?: ClaFileRepository;
             claWhitelist?: Whitelist;
             pullComments?: PullComments;
             pullAuthors?: PullAuthors;
             blockchainPoster?: BlockchainPoster;
+            pullCheckRunner?: PullCheckRunner;
         }) {
         this.settings = inputSettings;
         this.claFileRepository = (!claRepo) ? new ClaFileRepository(this.settings) : claRepo;
@@ -35,6 +39,7 @@ export class ClaRunner {
         this.pullComments = (!pullComments) ? new PullComments(this.settings) : pullComments
         this.pullAuthors = (!pullAuthors) ? new PullAuthors(this.settings) : pullAuthors
         this.blockchainPoster = (!blockchainPoster) ? new BlockchainPoster(this.settings) : blockchainPoster
+        this.pullCheckRunner = (!pullCheckRunner) ? new PullCheckRunner(this.settings) : pullCheckRunner;
     }
 
     public async execute(): Promise<boolean> {
@@ -62,7 +67,8 @@ export class ClaRunner {
             await Promise.all([
                 this.claFileRepository.commitClaFile(`Add ${newSignature.map(s => s.name).join(', ')}.`),
                 this.blockchainPoster.postToBlockchain(newSignature),
-                this.pullComments.setClaComment(authorMap)
+                this.pullComments.setClaComment(authorMap),
+                this.pullCheckRunner.rerunLastCheck()
             ]);
         } else {
             await this.pullComments.setClaComment(authorMap);

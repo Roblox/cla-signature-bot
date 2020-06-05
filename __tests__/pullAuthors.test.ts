@@ -1,13 +1,12 @@
 import { IInputSettings } from "../src/inputSettings"
-import { GitHub } from "@actions/github";
-import { AuthorMap } from "../src/authorMap";
+import * as github from "@actions/github";
 import { PullAuthors } from "../src/pullAuthors";
 
-const mockGitHub = new GitHub("1234567890123456789012345678901234567890");
+const mockGitHub = github.getOctokit("1234567890123456789012345678901234567890");
 
 const settings = {
-    repositoryOwner: "repoOwner",
-    repositoryName: "repoName",
+    localRepositoryOwner: "repoOwner",
+    localRepositoryName: "repoName",
     pullRequestNumber: 5,
     claDocUrl: "https://example.com",
     signatureText: "I have read the CLA Document and I hereby sign the CLA",

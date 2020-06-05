@@ -37,4 +37,4 @@ inputs:
     description: "The regex to locate the signature text. Should be single quoted. Note that comment bodies are toUpperCase'd before matching."
 runs:
   using: "node12"
-  main: "lib/main.js"
+  main: "lib/index.js"

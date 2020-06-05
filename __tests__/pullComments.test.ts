@@ -1,14 +1,14 @@
 import { IInputSettings } from "../src/inputSettings"
-import { GitHub } from "@actions/github";
+import * as github from "@actions/github";
 import { AuthorMap } from "../src/authorMap";
 import { PullComments } from "../src/pullComments";
 import { sign } from "crypto";
 
-const mockGitHub = new GitHub("1234567890123456789012345678901234567890");
+const mockGitHub = github.getOctokit("1234567890123456789012345678901234567890");
 
 const settings = {
-    repositoryOwner: "repoOwner",
-    repositoryName: "repoName",
+    localRepositoryOwner: "repoOwner",
+    localRepositoryName: "repoName",
     pullRequestNumber: 5,
     claDocUrl: "https://example.com",
     signatureText: "I have read the CLA Document and I hereby sign the CLA",
@@ -102,7 +102,7 @@ const repoInfo = {
     "hooks_url": "http://api.github.com/repos/octocat/Hello-World/hooks",
     "svn_url": "https://svn.github.com/octocat/Hello-World",
     "homepage": "https://github.com",
-    "language": null,
+    "language": "en",
     "forks_count": 9,
     "stargazers_count": 80,
     "watchers_count": 80,
@@ -135,7 +135,7 @@ const repoInfo = {
         "admin": false
     },
     "allow_rebase_merge": true,
-    "template_repository": null,
+    "template_repository": "",
     "temp_clone_token": "ABTLWHOULUVAXGTRYU7OC2876QJ2O",
     "allow_squash_merge": true,
     "allow_merge_commit": true,
@@ -240,7 +240,7 @@ const repoInfo = {
         "hooks_url": "http://api.github.com/repos/octocat/Hello-World/hooks",
         "svn_url": "https://svn.github.com/octocat/Hello-World",
         "homepage": "https://github.com",
-        "language": null,
+        "language": "null",
         "forks_count": 9,
         "stargazers_count": 80,
         "watchers_count": 80,
@@ -271,7 +271,7 @@ const repoInfo = {
             "pull": true
         },
         "allow_rebase_merge": true,
-        "template_repository": null,
+        "template_repository": "null",
         "temp_clone_token": "ABTLWHOULUVAXGTRYU7OC2876QJ2O",
         "allow_squash_merge": true,
         "allow_merge_commit": true,
@@ -350,7 +350,7 @@ const repoInfo = {
         "hooks_url": "http://api.github.com/repos/octocat/Hello-World/hooks",
         "svn_url": "https://svn.github.com/octocat/Hello-World",
         "homepage": "https://github.com",
-        "language": null,
+        "language": "null",
         "forks_count": 9,
         "stargazers_count": 80,
         "watchers_count": 80,
@@ -381,7 +381,7 @@ const repoInfo = {
             "pull": true
         },
         "allow_rebase_merge": true,
-        "template_repository": null,
+        "template_repository": "null",
         "temp_clone_token": "ABTLWHOULUVAXGTRYU7OC2876QJ2O",
         "allow_squash_merge": true,
         "allow_merge_commit": true,
@@ -459,6 +459,7 @@ function mockWith(hasExistingComment = true, hasGitHubAccount = true) {
 
     const createCommentSpy = jest.spyOn(mockGitHub.issues, 'createComment')
         .mockImplementation(async (params) => ({
+            url: "",
             data: getClaComment(params!.body!),
             headers: okHeader,
             status: 200,
@@ -466,6 +467,7 @@ function mockWith(hasExistingComment = true, hasGitHubAccount = true) {
         }));
     const updateCommentSpy = jest.spyOn(mockGitHub.issues, 'updateComment')
         .mockImplementation(async (params) => ({
+            url: "",
             data: getClaComment(params!.body!),
             headers: okHeader,
             status: 200,
@@ -474,6 +476,7 @@ function mockWith(hasExistingComment = true, hasGitHubAccount = true) {
 
     const listCommentsSpy = jest.spyOn(mockGitHub.issues, 'listComments')
         .mockImplementation(async (params) => ({
+            url: "",
             data: [
                 hasExistingComment ? getClaComment() : getRandomComment(),
                 getRandomComment(),
@@ -487,6 +490,7 @@ function mockWith(hasExistingComment = true, hasGitHubAccount = true) {
         }));
     const reposGetSpy = jest.spyOn(mockGitHub.repos, 'get')
         .mockImplementation(async (params) => ({
+            url: "",
             data: repoInfo,
             headers: okHeader,
             status: 200,

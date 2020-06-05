@@ -1,4 +1,4 @@
-import { GitHub } from "@actions/github";
+import { GitHub } from "@actions/github/lib/utils";
 
 export interface IInputSettings {
     /**
@@ -10,6 +10,16 @@ export interface IInputSettings {
      * The pull request number for this execution.
      */
     pullRequestNumber: number;
+
+    /**
+     * The pull request branch.
+     */
+    pullRequestBranch: string;
+
+    /**
+     * This workflow's name.
+     */
+    workflowName: string;
 
     /**
      * Whether the repository is remote or not.
@@ -94,10 +104,10 @@ export interface IInputSettings {
     /**
      * The octokit instance for interacting with the CLA file's repository.
      */
-    octokitRemote: GitHub
+    octokitRemote: InstanceType<typeof GitHub>
 
     /**
      * The octokit instance for interacting with this repository.
      */
-    octokitLocal: GitHub
+    octokitLocal: InstanceType<typeof GitHub>
 }
