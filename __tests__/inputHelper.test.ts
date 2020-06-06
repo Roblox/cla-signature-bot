@@ -7,6 +7,7 @@ import { IInputSettings } from '../src/inputSettings'
 
 // Inputs for mock @actions/core
 let inputs = {} as any
+jest.spyOn(core, 'debug').mockImplementation((string) => {});
 
 // Shallow clone original @actions/github context
 let originalContext = { ...github.context }

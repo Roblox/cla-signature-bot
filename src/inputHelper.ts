@@ -45,7 +45,7 @@ export function getInputs(): IInputSettings {
     settings.whitelist = core.getInput("whitelist") || "";
 
     settings.signatureText = core.getInput("signature-text") || "I have read the CLA Document and I hereby sign the CLA";
-    settings.signatureRegex = new RegExp(core.getInput("signature-regex") || /^.*I \s*HAVE \s*READ \s*THE \s*CLA \s*DOCUMENT \s*AND \s*I \s*HEREBY \s*SIGN \s*THE \s*CLA.*$/);
+    settings.signatureRegex = new RegExp(core.getInput("signature-regex") || /^.*I\s*HAVE\s*READ\s*THE\s*CLA\s*DOCUMENT\s*AND\s*I\s*HEREBY\s*SIGN\s*THE\s*CLA.*\n*$/);
 
     if (!settings.signatureText.toUpperCase().match(settings.signatureRegex)) {
         throw new Error("Signature RegEx does not match against Signature Text. Confirm valid RegEx.");
@@ -62,5 +62,14 @@ export function getInputs(): IInputSettings {
     settings.octokitLocal = github.getOctokit(settings.localAccessToken);
     settings.octokitRemote = github.getOctokit(settings.repositoryAccessToken);
 
+    writeOutSettings(settings);
+
     return settings;
+}
+
+function writeOutSettings(settings: IInputSettings) {
+    core.debug("All input settings constructed:");
+    for (var prop in settings) {
+        core.debug(`${prop}: ${settings[prop]}`);
+    }
 }
