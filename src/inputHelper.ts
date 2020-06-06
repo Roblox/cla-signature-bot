@@ -20,7 +20,6 @@ export function getInputs(): IInputSettings {
     // Standard context details dumped into an easy-to-read object.
     settings.pullRequestNumber = context.issue.number;
     settings.payloadAction = context.payload.action;
-    settings.pullRequestBranch = context.ref;
     settings.workflowName = context.workflow;
     settings.localAccessToken = process.env["GITHUB_TOKEN"] as string;
 

@@ -13,15 +13,20 @@ export class PullCheckRunner {
             // We don't want to re-run ourselves in an infinite loop.
             return;
         }
-        core.info("Re-running blocking commit check.");
 
-        const workflowId = await this.getSelfWorkflowId();
+        core.info("Re-running blocking commit check.");
+        const [workflowId, prBranch] = await Promise.all([
+            await this.getSelfWorkflowId(),
+            await this.getBranchOfPullRequest(),
+        ]);
         core.debug(`Self workflow ID  is ${workflowId}`);
+        core.debug(`PR branch is ${prBranch}`)
+
         const runs = await this.settings.octokitLocal.actions.listWorkflowRuns({
             owner: this.settings.localRepositoryOwner,
             repo: this.settings.localRepositoryName,
+            branch: prBranch,
             workflow_id: workflowId,
-            branch: this.settings.pullRequestBranch,
             event: "pull_request"
         });
         core.debug(`Found ${runs.data.total_count} previous runs.`);
@@ -51,5 +56,15 @@ export class PullCheckRunner {
         }
 
         return workflow.id;
+    }
+
+    private async getBranchOfPullRequest(): Promise<string> {
+        const pr = await this.settings.octokitLocal.pulls.get({
+            owner: this.settings.localRepositoryOwner,
+            repo: this.settings.localRepositoryName,
+            pull_number: this.settings.pullRequestNumber
+        });
+
+        return pr.data.head.ref;
     }
 }

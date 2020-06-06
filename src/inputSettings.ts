@@ -12,11 +12,6 @@ export interface IInputSettings {
     pullRequestNumber: number;
 
     /**
-     * The pull request branch.
-     */
-    pullRequestBranch: string;
-
-    /**
      * This workflow's name.
      */
     workflowName: string;
