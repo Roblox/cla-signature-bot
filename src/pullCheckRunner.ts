@@ -36,9 +36,13 @@ export class PullCheckRunner {
             // one should be the latest run that we can re-run.
             // In theory it doesn't actually matter which one we run since we get
             // the CLA file and set of comments every time.
-            const runUrl = runs.data.workflow_runs[0].rerun_url;
-            core.debug(`Running build using URL ${runUrl}`);
-            await this.settings.octokitLocal.request(runUrl);
+            const run = runs.data.workflow_runs[0].id;
+            core.debug(`Rerunning build run ${run}`);
+            await this.settings.octokitLocal.actions.reRunWorkflow({
+                owner: this.settings.localRepositoryOwner,
+                repo: this.settings.localRepositoryName,
+                run_id: run,
+            });
         }
     }
 

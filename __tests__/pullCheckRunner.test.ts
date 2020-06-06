@@ -768,7 +768,7 @@ function mockWith(hasRuns = false): [PullCheckRunner, any, any, any, any] {
             },
         }));
 
-    const requestSpy = jest.spyOn(mockGitHub, 'request')
+    const requestSpy = jest.spyOn(mockGitHub.actions, 'reRunWorkflow')
         .mockImplementation(async (params) => ({
             headers: {
                 date: "",
