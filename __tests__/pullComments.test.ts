@@ -12,7 +12,7 @@ const settings = {
     pullRequestNumber: 5,
     claDocUrl: "https://example.com",
     signatureText: "I have read the CLA Document and I hereby sign the CLA",
-    signatureRegex: /^.*I \s*HAVE \s*READ \s*THE \s*CLA \s*DOCUMENT \s*AND \s*I \s*HEREBY \s*SIGN \s*THE \s*CLA.*$/,
+    signatureRegex: /^.*I\s*HAVE\s*READ\s*THE\s*CLA\s*DOCUMENT\s*AND\s*I\s*HEREBY\s*SIGN\s*THE\s*CLA/,
     octokitLocal: mockGitHub,
 } as IInputSettings
 
@@ -441,6 +441,19 @@ function getSignatureComment() {
     });
 }
 
+function getNewlineSignatureComment() {
+    return ({
+        body: settings.signatureText + "\r\n\r\n",
+        created_at: "Creation time.",
+        html_url: "",
+        id: 123,
+        node_id: "",
+        updated_at: "",
+        url: "",
+        user: getUser(12345, "CommentingUser")
+    });
+}
+
 function getClaComment(body = "The text 'CLA Assistant Lite' is required to find this comment.") {
     return ({
         body: body,
@@ -454,8 +467,8 @@ function getClaComment(body = "The text 'CLA Assistant Lite' is required to find
     });
 }
 
-function mockWith(hasExistingComment = true, hasGitHubAccount = true) {
-    const signatureComment = getSignatureComment();
+function mockWith(hasExistingComment = true, hasGitHubAccount = true, withNewlineSignature = false) {
+    const signatureComment = withNewlineSignature ? getNewlineSignatureComment() : getSignatureComment();
 
     const createCommentSpy = jest.spyOn(mockGitHub.issues, 'createComment')
         .mockImplementation(async (params) => ({
@@ -622,6 +635,30 @@ it("Counts signed and unsigned committers separately", async () => {
 
 it("Maps new signature events", async () => {
     const [, , listCommentsSpy, reposGetSpy] = mockWith(true);
+
+    const localRepo = new PullComments(settings);
+    const author =
+    {
+        name: "CommentingUser",
+        signed: false,
+        id: 12345
+    };
+    const authorMap = new AuthorMap([author]);
+    const signatures = await localRepo.getNewSignatures(authorMap);
+
+    expect(signatures.length).toBe(1);
+    expect(signatures[0].name).toBe(author.name);
+    expect(signatures[0].id).toBe(author.id);
+    expect(signatures[0].repoId).toBe(123456789);
+    expect(signatures[0].comment_id).toBe(123);
+    expect(signatures[0].created_at).toBe("Creation time.");
+
+    expect(reposGetSpy).toHaveBeenCalledTimes(1);
+    expect(listCommentsSpy).toHaveBeenCalledTimes(1);
+});
+
+it("Maps new signature with a newline too", async () => {
+    const [, , listCommentsSpy, reposGetSpy] = mockWith(true, true, true);
 
     const localRepo = new PullComments(settings);
     const author =
