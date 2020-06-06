@@ -1,5 +1,6 @@
-import { IInputSettings } from "./inputSettings";
+import * as core from '@actions/core';
 import { ClaFile } from "./claFile";
+import { IInputSettings } from "./inputSettings";
 
 export class ClaFileRepository {
     readonly settings: IInputSettings;
@@ -25,12 +26,14 @@ export class ClaFileRepository {
             [this._file, this._fileSha] = await this.getOrCreateClaFile();
         }
 
+        core.debug("Committing CLA file back to source repository.");
         const updateResult = await this.updateClaFile(commitMessage, this._file, this._fileSha);
         this._fileSha = updateResult.data.commit.sha;
         return this._file;
     }
 
     private async getOrCreateClaFile(): Promise<[ClaFile, string]> {
+        core.debug("Getting CLA file from source repository.");
         try {
             const fileResult = await this.settings.octokitRemote.repos.getContents({
                 owner: this.settings.remoteRepositoryOwner,
@@ -49,6 +52,7 @@ export class ClaFileRepository {
         } catch (error) {
             // Only want to catch if the result is a response with a 404 error code, indicating no file was found.
             if (error.status === 404) {
+                core.debug("Creating CLA file as it does not currently exist.");
                 const claFile = new ClaFile();
                 const createResult = await this.updateClaFile("Creating CLA signature file", claFile);
 

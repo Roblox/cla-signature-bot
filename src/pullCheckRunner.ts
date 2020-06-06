@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import { IInputSettings } from "./inputSettings";
 
 export class PullCheckRunner {
@@ -8,7 +9,14 @@ export class PullCheckRunner {
     }
 
     public async rerunLastCheck() {
+        if (this.settings.payloadAction === "pull_request") {
+            // We don't want to re-run ourselves in an infinite loop.
+            return;
+        }
+        core.info("Re-running blocking commit check.");
+
         const workflowId = await this.getSelfWorkflowId();
+        core.debug(`Self workflow ID  is ${workflowId}`);
         const runs = await this.settings.octokitLocal.actions.listWorkflowRuns({
             owner: this.settings.localRepositoryOwner,
             repo: this.settings.localRepositoryName,
@@ -16,6 +24,7 @@ export class PullCheckRunner {
             branch: this.settings.pullRequestBranch,
             event: "pull_request"
         });
+        core.debug(`Found ${runs.data.total_count} previous runs.`);
 
         if (runs.data.total_count > 0) {
             // Workflows are listed in reverse chronological order, so the first
@@ -23,6 +32,7 @@ export class PullCheckRunner {
             // In theory it doesn't actually matter which one we run since we get
             // the CLA file and set of comments every time.
             const runUrl = runs.data.workflow_runs[0].rerun_url;
+            core.debug(`Running build using URL ${runUrl}`);
             await this.settings.octokitLocal.request(runUrl);
         }
     }

@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import { Author, AuthorMap } from "./authorMap";
 import { SignEvent } from "./signEvent";
 
@@ -25,12 +26,14 @@ export class ClaFile {
     }
 
     public addSignature(sigEvent: SignEvent[]): SignEvent[] {
+        core.debug(`Adding signatures: '${sigEvent.map(e => e.name).join(', ')}'`)
         // We only want to handle valid signature event objects.
         const validEvents = sigEvent.filter(sig =>
             sig.id !== undefined
             && sig.pullRequestNo !== undefined
             && !this._records.some(a => a.id === sig.id));
 
+        core.debug(`Adding valid signatures: ${validEvents.map(e => e.name).join(', ')}'`)
         this._records.push(...validEvents);
 
         return validEvents;

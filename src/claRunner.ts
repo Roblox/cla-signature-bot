@@ -58,14 +58,19 @@ export class ClaRunner {
             return true;
         }
 
+        core.debug(`Found a total of ${rawAuthors.length} authors after whitelisting.`);
+        core.debug(`Authors: ${rawAuthors.map(n => n.name).join(', ')}`);
+
         const claFile = await this.claFileRepository.getClaFile();
         let authorMap = claFile.mapSignedAuthors(rawAuthors);
 
         let newSignature = claFile.addSignature(await this.pullComments.getNewSignatures(authorMap));
         if (newSignature.length > 0) {
+            const newNames = newSignature.map(s => s.name).join(', ');
+            core.debug(`Found new signatures: ${newNames}.`)
             authorMap = claFile.mapSignedAuthors(rawAuthors);
             await Promise.all([
-                this.claFileRepository.commitClaFile(`Add ${newSignature.map(s => s.name).join(', ')}.`),
+                this.claFileRepository.commitClaFile(`Add ${newNames}.`),
                 this.blockchainPoster.postToBlockchain(newSignature),
                 this.pullComments.setClaComment(authorMap),
                 this.pullCheckRunner.rerunLastCheck()
@@ -83,16 +88,16 @@ export class ClaRunner {
     }
 
     private async lockPullRequest(): Promise<any> {
-        core.info("Locking the pull request to safe guard the pull request's CLA signatures.");
+        core.info(`Locking pull request #${this.settings.pullRequestNumber} to safe guard the pull request's CLA signatures.`);
         try {
             await this.settings.octokitLocal.issues.lock({
                 owner: this.settings.localRepositoryOwner,
                 repo: this.settings.localRepositoryName,
                 issue_number: this.settings.pullRequestNumber
             });
-            core.info(`Successfully locked pull request '${this.settings.pullRequestNumber}'.`);
+            core.info(`Successfully locked pull request #${this.settings.pullRequestNumber}.`);
         } catch (error) {
-            core.error(`Failed to lock pull request '${this.settings.pullRequestNumber}'.`);
+            core.error(`Failed to lock pull request #${this.settings.pullRequestNumber}.`);
         }
     }
 }
