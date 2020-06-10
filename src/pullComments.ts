@@ -143,8 +143,7 @@ Thank you for your submission, we really appreciate it. Like many open-source pr
 By commenting with the above message you are agreeing to the terms of the CLA. Your account will be recorded as agreeing to our CLA so you don't need to sign it again for future contributions to our company's repositories.
 
 ${authorText}
-
-<sub>You can retrigger the CLA Action by commenting **recheckcla** in this Pull Request</sub>`;
+`;
     }
 
     public async getNewSignatures(authorMap: AuthorMap): Promise<SignEvent[]> {
