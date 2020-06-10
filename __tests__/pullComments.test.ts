@@ -454,7 +454,7 @@ function getNewlineSignatureComment() {
     });
 }
 
-function getClaComment(body = "The text 'CLA Assistant Lite' is required to find this comment.") {
+function getClaComment(body = "The text 'CLA Signature Action' is required to find this comment.") {
     return ({
         body: body,
         created_at: "",
@@ -537,7 +537,7 @@ it("Creates CLA comment if it can't find one.", async () => {
     // And a link to the CLA file must be present.
     expect(result.search(settings.claDocUrl)).toBeGreaterThan(0);
     // And the regex to find the cla title should work.
-    expect(result.match(/.*CLA Assistant Lite.*/)).toBeTruthy();
+    expect(result.match(localRepo.BotNameRegex)).toBeTruthy();
 
     // List comments should have been called (to get the list to search for existing comments)
     // along with creating a comment. Update comment should not have been called.
@@ -560,7 +560,7 @@ it("Updates existing comment if one is present", async () => {
     const result = await localRepo.setClaComment(authorMap);
 
     // And the regex to find the cla title should work.
-    expect(result.match(/.*CLA Assistant Lite.*/)).toBeTruthy();
+    expect(result.match(localRepo.BotNameRegex)).toBeTruthy();
 
     // List comments should have been called (to get the list to search for existing comments)
     // along with creating a comment. Update comment should not have been called.
@@ -585,7 +585,7 @@ it("Creates a comment that everyone signed if everyone has signed", async () => 
     // Since everyone signed, names shouldn't show up.
     expect(result.search(author.name)).toBe(-1);
     // And the regex to find the cla title should work.
-    expect(result.match(/.*CLA Assistant Lite.*/)).toBeTruthy();
+    expect(result.match(localRepo.BotNameRegex)).toBeTruthy();
 
     // List comments should have been called (to get the list to search for existing comments)
     // along with creating a comment. Update comment should not have been called.
@@ -630,7 +630,7 @@ it("Counts signed and unsigned committers separately", async () => {
     // And a link to the CLA file must be present.
     expect(result.search(settings.claDocUrl)).toBeGreaterThan(0);
     // And the regex to find the cla title should work.
-    expect(result.match(/.*CLA Assistant Lite.*/)).toBeTruthy();
+    expect(result.match(localRepo.BotNameRegex)).toBeTruthy();
 });
 
 it("Maps new signature events", async () => {

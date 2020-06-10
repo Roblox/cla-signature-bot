@@ -1,22 +1,28 @@
-![build](https://github.com/cla-assistant/github-action/workflows/build/badge.svg)
-# Handling CLAs with GitHub Action (Alpha)
+# Contributor License Agreement Signature GitHub Action
 
-Streamline your workflow and let this GitHub Action(a lite version of [CLA Assistant](https://github.com/cla-assistant/cla-assistant)) handle the legal side of contributions to a repository for you. CLA assistant enables contributors to sign CLAs from within a pull request. With this GitHub Action we get rid of the need for a centrally managed database by **storing the contributor's signature data** in a decentralized way - **in the repository's file system**
+![build](https://github.com/Roblox/cla-assistant/workflows/build/badge.svg?branch=master)
 
-### Features
-1. decentralized data storage
-1. fully integrated with github environment
-1. no UI  required
-1. no need for permission/scope handling
-1. contributors can sign the CLA by just posting a Pull Request comment
-1. signatures will be stored in a file inside the repository plus optionally on the Ethereum Blockchain
+A GitHub Action for GitHub-native automated handling of contributor license agreement signatures. This action enables developers to self-sign a CLA without having to run external services for a separate system. The Action handles logic and stores signatures either in the same repository being protected or in a central repository that all protected projects can read and write signatures from.
 
-## Configure Contributor License Agreement within two minutes
+## Features
 
-#### 1. Add the following Workflow File to your repository in this path`.github/workflows/cla.yml`
+1. (De)-Centralized Signature Storage, choose whether repositories store signatures independently or use one central signature file.
+1. Fully integrated GitHub Action, no external services required.
+1. No dedicated UI, simply uses comments in Pull Requests.
+1. Contributors can sign the CLA by just posting a Pull Request comment.
+1. Signatures will be stored in a file for auditing.
+1. Optionally store signatures on the Ethereum Blockchain.
+
+Signatures are stored in an easy-to-parse JSON structure either in the same repo running the GitHub Action or in an alternate repo that you can configure.
+
+![Screenshot 2020-01-07 at 16 13 43](https://user-images.githubusercontent.com/33329946/71905595-c33aec80-3168-11ea-8a08-c78f13cb0dcb.png)
+
+## Configure CLA Signature Action in two minutes
+
+### Add the following Workflow File to your repository in the path `.github/workflows/cla.yml`
 
 ```yml
-name: "CLA Assistant"
+name: "CLA Signature Bot"
 on:
   issue_comment:
     types: [created]
@@ -24,99 +30,84 @@ on:
     types: [opened,closed,synchronize]
 
 jobs:
-  CLAssistant:
+  CLABot:
     runs-on: ubuntu-latest
     steps:
-      - name: "CLA Assistant"
-        if: (github.event.comment.body == 'recheckcla' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request'
-        # Alpha Release
-        uses: cla-assistant/github-action@v1.3.0-alpha
+      - name: "CLA Signature Bot"
+        uses: roblox/cla-assistant@2.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           path-to-signatures: 'signatures/version1/cla.json'
-          url-to-cladocument: 'https://github.com/ibakshay/test-action-workflow/blob/master/cla.md'
-          # branch should not be protected
+          url-to-cladocument: 'https://link/to/your/legal/CLA/document/of/choice'
+          # This branch can't have protections, commits are made directly to the specified branch.
           branch: 'master'
-          whitelist: user1,user2,bot*
-          empty-commit-flag: false
+          whitelist: githubuser_example,anotherGitHubuser,bot
           blockchain-storage-flag: false
 
 ```
 
-#### 2. Pull Request event triggers CLA Workflow
+### Open a new pull request
 
 CLA action workflow will be triggered on all Pull Request `opened, synchronize, closed`.
-<br/> When the CLA workflow is triggered on pull request `closed` event, it will lock the Pull Request conversation after the Pull Request merge so that the contributors cannot modify or delete the signatures (Pull Request comment) later. This feature is optional.
 
-#### 3. Signing the CLA
-CLA workflow creates a comment on Pull Request asking contributors who have not signed  CLA to sign and also fails the pull request status check with a `failure`. The contributors are requested to sign the CLA within the pull request by copy and pasting **"I have read the CLA Document and I hereby sign the CLA"** as a Pull Request comment like below.
-If the contributor has already signed the CLA, then the PR status will pass with `success`. <br/> By default, this  Action workflow will also create an empty commit with a message  **"@#contributorname# has signed the CLA"** whenever a contributor signs the CLA.
+When the CLA workflow is triggered on pull request `closed` event, it will lock the Pull Request conversation after the Pull Request merge so that the contributors cannot modify or delete the signature comments later.
+
+If your signature is not on file and your account isn't in the whitelist, the CLA Bot will provide instructions on what to do in the PR Conversation and block the PR from merging until all authors of commits sign the CLA.
 
 ![Screenshot 2020-02-13 at 10 24 17](https://user-images.githubusercontent.com/33329946/74420003-0ca6e780-4e4b-11ea-85a7-4ccc3f53e3d5.png)
 
-<br/>
+### Sign the CLA
 
-#### 4. Signatures stored in a JSON file
+The CLA Signature Action will comment on the pull request asking for authors to sign the CLA. Commit authors will then need to use their GitHub accounts to write **"I have read the CLA Document and I hereby sign the CLA"** in the Pull Request comments to sign the CLA.
 
-After the contributor signed a CLA, the contributor's signature with metadata will be stored in a JSON file inside the repository like below screenshot and you can specify the custom path to this file with `path-to-signatures` input in the workflow. <br/> The default path is `path-to-signatures: 'signatures/version1/cla.json'`
+Add a comment with the requested signature to your pull request to sign the CLA. The action will execute again and automatically mark your signature in the CLA signatures file. When all authors have signed the CLA the PR check will pass.
 
-![Screenshot 2020-01-07 at 16 13 43](https://user-images.githubusercontent.com/33329946/71905595-c33aec80-3168-11ea-8a08-c78f13cb0dcb.png)
+## Additional Configuration Options
 
-#### 5. Whitelisting users and bots
+### Whitelist Accounts
 
-If a GitHub username is included in the whitelist, they will not be required to sign a CLA. You can make use of this feature If you don't want your colleagues working in the same team/organisation to sign a CLA. And also, since there's no way for bot users (such as Dependabot or Greenkeeper) to sign a CLA, you may want to whitelist them. You can do so by adding their names in a comma separated string to the `whitelist` input in the CLA  workflow file(in this case `dependabot-preview[bot],greenkeeper[bot]`). You can also use wildcard symbol in case you want to whitelist all bot users something like `bot*`.
+The `whitelist` parameter is a comma-seprated list of accounts which should not be considered for CLA signature verification. These accounts will **completely bypass the signature process**, and if all authors are whitelisted in a PR the CLA Signature Action won't even comment on the PR.
 
-#### 6. Signatures can be additionally stored on the Ethereum Blockchain
+This feature is particularly useful for other bot accounts, such as dependabot or greenkeeper. For example, `dependabot-preview[bot],greenkeeper[bot]` will whitelist both of those bot accounts.
 
-To make the whole process more fraud resistant we grant the option to additionally store the signatures on the Ethereum Blockchain. To use this feature just set the `blockchain-storage-flag: true`. A detailed description on integrating with the Ethereum Blockchain can be found [here](https://github.com/cla-assistant/blockchain-services) - special credits and thanks goes to [@FabianRiewe](https://github.com/fabianriewe).
+Wildcards are accepted and will be treated as a regex .* character, so you can whitelist ranges of accounts. Use caution with wildcards to avoid whitelisting actual human contributors.
 
+### Using the Ethereum Blockchain
 
+The CLA Signature Bot has the option to additionally store the signatures on the Ethereum Blockchain. To use this feature just set the `blockchain-storage-flag: true`. A detailed description on integrating with the Ethereum Blockchain can be found [here](https://github.com/cla-assistant/blockchain-services). The original implementation of this feature is thanks to [@FabianRiewe](https://github.com/fabianriewe).
 
+### Full list of configuration options
 
-### Environmental Variables :
-
-
-| Name                  | Requirement | Description |
-| --------------------- | ----------- | ----------- |
-| `GITHUB_TOKEN`        | _required_ | Must be in the form of `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}`  ,  CLA Action uses this in-built GitHub token to make the API calls for interacting with GitHub. It is built into Github Actions and does not need to be manually specified in your secrets store. [More Info](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token)|
-
-### Inputs Description :
+#### Environment Variables (env: yaml section)
 
 | Name                  | Requirement | Description |
 | --------------------- | ----------- | ----------- |
-| `path-To-cladocument`     | _required_ |  provide full URL `https://<clafile>` to the Contributor License Agreement (CLA) to which the Contributor can read  before signing the CLA. It can be a file inside the repository or it can be a gist |
-| `path-to-signatures`       | _optional_ |  Path to the JSON file where  all the signatures of the contributors will be stored inside the repository. Default path is  "./signatures/cla.json". |
-| `branch`   | _optional_ |  Branch in which all the signatures of the contributors will be stored and Default branch is `master`  |
-| `empty-commit-flag`   | _optional_ |  provide the boolean `true` or `false` so that GitHub Actions will add empty commit whenever user signs the CLA. Default is `true`  |
-| `whitelist`   | _optional_ | You can specify users and bots to be [whitelisted](https://github.com/cla-assistant/github-action#5-whitelisting-users-and-bots). For example `user1,user2,bot*`  |
-| `blockchain-storage-flag`     | _optional_ |  provide the boolean `true` or `false` to optionally store the Contributor's signature data in the Ethereum blockchain. Default is `false` |
+| `GITHUB_TOKEN`        | _Required_ | Used for interacting with the local repository, such as adding comments to PRs. Does not need to be manually specified in Repository Secrets, [read more](https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token). Must be in the form of `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` |
 
-This action won't work for Pull Request coming from the forks as the [GitHub Action Token](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/authenticating-with-the-github_token) does not have write access for the forks, However, the GitHub team assured in one of the [discussion](https://github.community/t5/GitHub-Actions/Github-Workflow-not-running-from-pull-request-from-forked/m-p/32979#M1325) that they will ship this feature to enable read/write access for the PRs coming from the forks.
+#### Inputs (with: yaml section)
+
+| Name                          | Requirement | Description |
+| ----------------------------- | ----------- | ----------- |
+| `url-to-cladocument`          | _Required_  | The full URL of your CLA document. The CLA bot will link to this document in a Pull Request comment, so make sure it's public. Could be a gist link, or a link to a file in the same repo. |
+| `path-to-signatures`          | _optional_  | Path to the signature file in the repository. Default is `./signatures/cla.json`. |
+| `branch`                      | _optional_  | Repository branch to store the signature file. Default is `master` |
+| `whitelist`                   | _optional_  | Comma-separated list of accounts to [ignore](https://github.com/roblox/cla-assistant#Whitelist-Accounts). Example: `user1,user2,bot*` |
+| `blockchain-storage-flag`     | _optional_  | Whether to store the Contributor's signature data in the Ethereum blockchain. May be `true` or `false`. Default is `false`. |
+| `blockchain-webhook-endpoint` | _optional_  | The URL to post the blockchain request to. Can be used when running your own [blockchain-services](https://github.com/cla-assistant/blockchain-services) docker container. |
+| `use-remote-repo`             | _optional_  | Whether to use an alternate repository for storing the signature file than the one running the workflow. If `true` the remote repo name and PAT must be provided. Default is `false`. |
+| `remote-repo-name`            | _optional_  | The name of the alternate repository to store the signature file. Must be in `owner/repo-name` format, ex: `roblox/cla-assistant`. Mandatory if `use-remote-repo` is `true`. |
+| `remote-repo-pat`             | _optional_  | A Personal Access Token with permission to write to the remote repo. If the repo is private it must have repo:private scope. Mandatory if `use-remote-repo` is `true`. |
 
 ## License
 
-Contributor License Agreement assistant
+Contributor License Agreement Signature Bot Copyright (c) 2020 [Roblox Corporation](https://roblox.com). All rights reserved.
 
-Copyright (c) 2020 [SAP SE](http://www.sap.com) or an SAP affiliate company. All rights reserved.
+[Licensed under the Apache License, Version 2.0.](./LICENSE)
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+## Credits
 
-    http://www.apache.org/licenses/LICENSE-2.0
+Provided with ♥ by Roblox.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
-
-Credits
-=======
-
-<p align="center">
-    <img src="https://raw.githubusercontent.com/reviewninja/review.ninja/master/sap_logo.png" title="SAP" />
-<p align="center">
-:heart: from the GitHub team @SAP
+This project is an extension of the original CLA-Assistant-Lite project created by [SAP SE](http://www.sap.com) and especially [Akshay Iyyadurai Balasundaram
+](https://github.com/ibakshay). Our thanks go out to them for the idea and initial implementation that was rewritten into this system. The original project can be found at [https://github.com/cla-assistant/github-action](cla-assistant/github-action).

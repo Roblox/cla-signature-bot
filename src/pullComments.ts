@@ -5,10 +5,19 @@ import { SignEvent } from "./signEvent";
 export class PullComments {
     readonly settings: IInputSettings;
 
+    readonly BotName = "CLA Signature Action";
+    readonly BotNameRegex = new RegExp(`.*${this.BotName}.*`);
+
     constructor(settings: IInputSettings) {
         this.settings = settings
     }
 
+    // NOTE: This has been removed because it is no longer necessary with the
+    // implementation of PullCheckRunner. The PullCheckRunner will re-run any blocking
+    // PR checks, while this was used to add an empty commit and re-fire any blocking
+    // PR checks but didn't work for forks.
+    // This code is kept juuuuuust in case but should probably be removed if you're
+    // reading it in the future.
     // /**
     //  * Adds an empty commit when an author signs the CLA.
     //  * @param authorName The name of the author who signed the CLA.
@@ -94,7 +103,7 @@ export class PullComments {
                 repo: this.settings.localRepositoryName,
                 issue_number: this.settings.pullRequestNumber
             });
-            return response.data.find(c => c.body.match(/.*CLA Assistant Lite.*/));
+            return response.data.find(c => c.body.match(this.BotNameRegex));
         } catch (error) {
             throw new Error(`Failed to get PR comments: ${error.message}. Details: ${JSON.stringify(error)}`);
         }
@@ -102,7 +111,7 @@ export class PullComments {
 
     private getCommentContent(authorMap: AuthorMap): string {
         if (authorMap.allSigned()) {
-            return "**CLA Assistant Lite:** All authors have signed the CLA.";
+            return `**${this.BotName}:** All authors have signed the CLA. You may need to manually re-run the blocking PR check if it doesn't pass in a few minutes.`;
         }
 
         const subjectString = (authorMap.count > 1) ? "you all" : "you";
@@ -125,7 +134,7 @@ export class PullComments {
             authorText += "You need a GitHub account to be able to sign the CLA. If you have already a GitHub account, please [add the email address used for this commit to your account](https://help.github.com/articles/why-are-my-commits-linked-to-the-wrong-user/#commits-are-not-linked-to-any-user)."
         }
 
-        return `**CLA Assistant Lite:**
+        return `**${this.BotName}:**
 
 Thank you for your submission, we really appreciate it. Like many open-source projects, we ask that ${subjectString} read and sign our [Contributor License Agreement](${claUrl}) before we can accept your contribution. You can sign the CLA by just by adding a comment to this pull request with this exact sentence:
 

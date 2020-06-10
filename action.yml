@@ -1,12 +1,13 @@
-name: "CLA Assistant Lite"
-description: "An action to handle the Contributor License Agreement"
-author: "SAP"
+name: "CLA Signature Action"
+description: "Self-contained manager for Contributor License Agreement signatures."
+author: "Roblox"
 branding:
   icon: "award"
   color: blue
 inputs:
   url-to-cladocument:
     description: "The URL for the CLA contract."
+    required: true
   path-to-signatures:
     description: "Give a path for storing CLAs in a json file."
     default: "signatures/cla.json"
