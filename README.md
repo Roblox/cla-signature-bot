@@ -110,4 +110,4 @@ Contributor License Agreement Signature Bot Copyright (c) 2020 [Roblox Corporati
 Provided with ♥ by Roblox.
 
 This project is an extension of the original CLA-Assistant-Lite project created by [SAP SE](http://www.sap.com) and especially [Akshay Iyyadurai Balasundaram
-](https://github.com/ibakshay). Our thanks go out to them for the idea and initial implementation that was rewritten into this system. The original project can be found at [https://github.com/cla-assistant/github-action](cla-assistant/github-action).
+](https://github.com/ibakshay). Our thanks go out to them for the idea and initial implementation that was rewritten into this system. The original project can be found at [https://github.com/cla-assistant/github-action](https://github.com/cla-assistant/github-action).
