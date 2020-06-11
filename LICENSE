@@ -203,67 +203,17 @@
 
 
 --------------------------------------------------------------------------------------------------------------------------
-CONTRIBUTOR LICENSE AGREEMENT ASSISTANT SUBCOMPONENTS:
+CONTRIBUTOR LICENSE AGREEMENT SIGNATURE BOT SUBCOMPONENTS:
 
-Contributor License Agreement assistant includes the following subcomponents that are subject to separate license terms. 
+Contributor License Agreement Signature Bot includes the following subcomponents that are subject to separate license terms.
 Your use of these subcomponents is subject to the separate license terms applicable to
 each subcomponent.
-
-Component: AppJs 0.0.2
-Licensor: Morteza Milani and other AppJS contributors
-Website: https://www.npmjs.org/package/appjs
-License: MIT License
-<year> = 2012
-<copyright holders> = Morteza Milani and other AppJS contributors
-
-Component: Bower
-Licensor: Twitter and other contributors
-Website: https://github.com/bower/bower
-License: MIT License
-<year> = 2014
-<copyright holders> = Twitter and other contributors
-
-Component: Karma
-Licensor: Google, Inc.
-Website: https://github.com/karma-runner/karma/
-License: MIT License
-<year> = 2011-2014
-<copyright holders> = Google, Inc.
 
 Component: Node Package Manager
 Licensor: npm, Inc. and Contributors
 Website: https://github.com/npm/npm
 License: Artistic License 2.0 + additional terms (see below)
 
-Component: ReviewNinja
-Licensor: SAP SE
-Website: https://github.com/reviewninja/review.ninja
-License: Apache License 2.0
-
-
---------------------------------------------------------------------------------------------------------------------------
-
-The MIT License (MIT)
-
-Copyright (c) <year> <copyright holders>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 --------------------------------------------------------------------------------------------------------------------------
 
 The Artistic License 2.0
@@ -516,4 +466,3 @@ used with permission.
 
 This program uses several Node modules contained in the node_modules/
 subdirectory, according to the terms of their respective licenses.
-
