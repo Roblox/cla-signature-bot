@@ -88,10 +88,12 @@ it('requires a pat with remote repo', () => {
     // Throws because neither a repo name nor a PAT are supplied
     expect(() => inputHelper.getInputs()).toThrow();
 
-    // Still throws because a PAT isn't supplied
+    // Doesn't throw (but does set the readonly flag) because forks won't have a pat.
     inputs["remote-repo-name"] = "someowner/somerepo";
     inputs["remote-repo-pat"] = null;
-    expect(() => inputHelper.getInputs()).toThrow();
+    let settings = inputHelper.getInputs();
+    expect(settings.isRemoteRepo).toStrictEqual(true);
+    expect(settings.isRemoteRepoReadonly).toStrictEqual(true);
 
     // Still throws when only the PAT is supplied
     inputs["remote-repo-name"] = null;
@@ -101,7 +103,9 @@ it('requires a pat with remote repo', () => {
     // Doesn't throw when both are supplied.
     inputs["remote-repo-name"] = "someowner/somerepo";
     inputs["remote-repo-pat"] = "1234567890123456789012345678901234567890";
-    expect(inputHelper.getInputs()).toBeTruthy();
+    settings = inputHelper.getInputs();
+    expect(settings.isRemoteRepo).toStrictEqual(true);
+    expect(settings.isRemoteRepoReadonly).toStrictEqual(false);
 });
 
 it("Throws if signature regex doesn't match signature text", () => {

@@ -22,6 +22,11 @@ export interface IInputSettings {
     isRemoteRepo: boolean
 
     /**
+     * Whether to treat the remote repository as readonly.
+     */
+    isRemoteRepoReadonly: boolean
+
+    /**
      * The name of the repository where the CLA file is stored.
      */
     remoteRepositoryName: string
