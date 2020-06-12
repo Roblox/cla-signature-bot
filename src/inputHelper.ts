@@ -27,14 +27,25 @@ export function getInputs(): IInputSettings {
     settings.isRemoteRepo = (core.getInput("use-remote-repo") || 'FALSE').toUpperCase() === 'TRUE';
 
     // Let github core perform the validation if it's necessary.
-    const remoteRequired = { required: settings.isRemoteRepo} as core.InputOptions;
     const required = { required: true } as core.InputOptions;
 
     // The repo name should be owner/repo-name and needs to be split to be used.
     [settings.remoteRepositoryOwner, settings.remoteRepositoryName] = ParseRepoName(
-        core.getInput("remote-repo-name", remoteRequired) ||
+        core.getInput("remote-repo-name", { required: settings.isRemoteRepo }) ||
         context.repo.owner + "/" + context.repo.repo);
-    settings.repositoryAccessToken = core.getInput("remote-repo-pat", remoteRequired) || settings.localAccessToken;
+
+    // If this action is run from a fork this value will be blank. Assume the remote repo
+    // is publicly readable and the local access token can be used to at least read the CLA
+    // file. Mark the repo as readonly so we can check to see if we should attempt to write.
+    const remoteRepoPat = core.getInput("remote-repo-pat");
+    if (!remoteRepoPat) {
+        // Only readonly if we're trying to use a remote repo at all.
+        settings.isRemoteRepoReadonly = settings.isRemoteRepo;
+        settings.repositoryAccessToken = settings.localAccessToken;
+    } else {
+        settings.isRemoteRepoReadonly = false;
+        settings.repositoryAccessToken = remoteRepoPat;
+    }
 
     settings.localRepositoryOwner = context.repo.owner;
     settings.localRepositoryName = context.repo.repo;

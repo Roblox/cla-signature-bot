@@ -211,3 +211,21 @@ it('Commits file after creating it', async () => {
     expect(getContentsSpy).toHaveBeenCalledTimes(1);
     expect(createOrUpdateSpy).toHaveBeenCalledTimes(2);
 });
+
+it("Throws if attempting to create a CLA file in a readonly repo", async () => {
+    const settings = {
+        remoteRepositoryName: "blah",
+        remoteRepositoryOwner: "owner",
+        claFilePath: "asdf",
+        branch: "master",
+        isRemoteRepoReadonly: true,
+        isRemoteRepo: true,
+        octokitRemote: mockGitHub,
+    } as IInputSettings;
+    const [getContentsSpy, createOrUpdateSpy] = mockWith("12345", "67890");
+    const fileRepo = new ClaFileRepository(settings);
+
+    expect(fileRepo.getClaFile()).rejects.toThrow();
+    expect(getContentsSpy).toHaveBeenCalledTimes(1);
+    expect(createOrUpdateSpy).toHaveBeenCalledTimes(0);
+});
