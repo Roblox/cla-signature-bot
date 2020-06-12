@@ -467,25 +467,31 @@ function getClaComment(body = "The text 'CLA Signature Action' is required to fi
     });
 }
 
-function mockWith(hasExistingComment = true, hasGitHubAccount = true, withNewlineSignature = false) {
+function mockWith(hasExistingComment = true, hasGitHubAccount = true, withNewlineSignature = false, withReadonlyToken = false) {
     const signatureComment = withNewlineSignature ? getNewlineSignatureComment() : getSignatureComment();
 
     const createCommentSpy = jest.spyOn(mockGitHub.issues, 'createComment')
-        .mockImplementation(async (params) => ({
-            url: "",
-            data: getClaComment(params!.body!),
-            headers: okHeader,
-            status: 200,
-            [Symbol.iterator]: () => ({ next: () => { return { value: null, done: true } } }),
-        }));
+        .mockImplementation(async (params) => {
+            if (withReadonlyToken) { throw { status: 403 }; }
+            return ({
+                url: "",
+                data: getClaComment(params!.body!),
+                headers: okHeader,
+                status: 200,
+                [Symbol.iterator]: () => ({ next: () => { return { value: null, done: true } } }),
+            });
+        });
     const updateCommentSpy = jest.spyOn(mockGitHub.issues, 'updateComment')
-        .mockImplementation(async (params) => ({
-            url: "",
-            data: getClaComment(params!.body!),
-            headers: okHeader,
-            status: 200,
-            [Symbol.iterator]: () => ({ next: () => { return { value: null, done: true } } }),
-        }));
+        .mockImplementation(async (params) => {
+            if (withReadonlyToken) { throw { status: 403 }; }
+            return ({
+                url: "",
+                data: getClaComment(params!.body!),
+                headers: okHeader,
+                status: 200,
+                [Symbol.iterator]: () => ({ next: () => { return { value: null, done: true } } }),
+            });
+        });
 
     const listCommentsSpy = jest.spyOn(mockGitHub.issues, 'listComments')
         .mockImplementation(async (params) => ({
@@ -724,4 +730,24 @@ it("Returns an empty list if no new signatures.", async () => {
     // Doesn't call methods if everyone signed.
     expect(reposGetSpy).toHaveBeenCalledTimes(1);
     expect(listCommentsSpy).toHaveBeenCalledTimes(1);
+});
+
+it("Doesn't throw if it gets an 403 when trying to write", async () => {
+    const [createCommentSpy, updateCommentSpy, listCommentsSpy] = mockWith(true, true, false, true);
+
+    const localRepo = new PullComments(settings);
+    const unsignedAuthor =
+    {
+        name: "UnsignedAuthor",
+        signed: false,
+        id: 12346
+    };
+    const authorMap = new AuthorMap([unsignedAuthor]);
+    // This should not throw an exception
+    const result = await localRepo.setClaComment(authorMap);
+    expect(result).toStrictEqual("");
+
+    expect(listCommentsSpy).toHaveBeenCalled();
+    expect(updateCommentSpy).toHaveBeenCalledTimes(1);
+    expect(createCommentSpy).toHaveBeenCalledTimes(0);
 });
