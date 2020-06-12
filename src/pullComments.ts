@@ -1,3 +1,4 @@
+import * as core from "@actions/core";
 import { IInputSettings } from "./inputSettings";
 import { AuthorMap } from "./authorMap";
 import { SignEvent } from "./signEvent";
@@ -12,87 +13,36 @@ export class PullComments {
         this.settings = settings
     }
 
-    // NOTE: This has been removed because it is no longer necessary with the
-    // implementation of PullCheckRunner. The PullCheckRunner will re-run any blocking
-    // PR checks, while this was used to add an empty commit and re-fire any blocking
-    // PR checks but didn't work for forks.
-    // This code is kept juuuuuust in case but should probably be removed if you're
-    // reading it in the future.
-    // /**
-    //  * Adds an empty commit when an author signs the CLA.
-    //  * @param authorName The name of the author who signed the CLA.
-    //  */
-    // public async addEmptyCommit(authorName: string) {
-    //     core.info(`Adding empty commit to record that ${authorName} signed the CLA.`)
-    //     try {
-    //         const owner = this.settings.localRepositoryOwner;
-    //         const repo = this.settings.localRepositoryName;
-    //         const octokit = this.settings.octokitLocal;
-
-    //         // Get the pull request attached to this issue
-    //         const pullRequestResponse = await octokit.pulls.get({
-    //             owner: owner,
-    //             repo: repo,
-    //             pull_number: this.settings.pullRequestNumber
-    //         });
-
-    //         // ..which gets us the latest commit SHA..
-    //         const baseCommit = await octokit.git.getCommit({
-    //             owner: owner,
-    //             repo: repo,
-    //             commit_sha: pullRequestResponse.data.head.sha
-    //         });
-
-    //         // ..which we use to build an identical git tree..
-    //         const tree = await octokit.git.getTree({
-    //             owner: owner,
-    //             repo: repo,
-    //             tree_sha: baseCommit.data.tree.sha
-    //         });
-
-    //         // ..which we can use to construct a new commit..
-    //         const newCommit = await octokit.git.createCommit(
-    //             {
-    //                 owner: owner,
-    //                 repo: repo,
-    //                 message: `${authorName} signed the CLA.`,
-    //                 tree: tree.data.sha,
-    //                 parents: [pullRequestResponse.data.head.sha]
-    //             }
-    //         );
-
-    //         // ..which we push on to the PR's branch.
-    //         return octokit.git.updateRef({
-    //             owner: owner,
-    //             repo: repo,
-    //             ref: `heads/${pullRequestResponse.data.head.ref}`,
-    //             sha: newCommit.data.sha
-    //         });
-    //         // Whew!
-    //     } catch (error) {
-    //         core.error(`Failed to add empty commit with contributor's signature name.`);
-    //     }
-    // }
-
     public async setClaComment(authorMap: AuthorMap): Promise<string> {
         const commentContent = this.getCommentContent(authorMap);
         const existingComment = await this.getExistingComment();
-        if (!existingComment) {
-            let result = await this.settings.octokitLocal.issues.createComment({
-                owner: this.settings.localRepositoryOwner,
-                repo: this.settings.localRepositoryName,
-                issue_number: this.settings.pullRequestNumber,
-                body: commentContent
-            });
-            return result.data.body;
-        } else {
-            let result = await this.settings.octokitLocal.issues.updateComment({
-                owner: this.settings.localRepositoryOwner,
-                repo: this.settings.localRepositoryName,
-                comment_id: existingComment.id,
-                body: commentContent
-            });
-            return result.data.body;
+        try{
+            if (!existingComment) {
+                let result = await this.settings.octokitLocal.issues.createComment({
+                    owner: this.settings.localRepositoryOwner,
+                    repo: this.settings.localRepositoryName,
+                    issue_number: this.settings.pullRequestNumber,
+                    body: commentContent
+                });
+                return result.data.body;
+            } else {
+                let result = await this.settings.octokitLocal.issues.updateComment({
+                    owner: this.settings.localRepositoryOwner,
+                    repo: this.settings.localRepositoryName,
+                    comment_id: existingComment.id,
+                    body: commentContent
+                });
+                return result.data.body;
+            }
+        } catch (error) {
+            if (error.status === 403) {
+                // No permissions to write a comment usually indicates this is running from a fork, so give up
+                // attempting to add or modify the comment.
+                core.warning("Can't add PR comment because this action executed from a fork. Have anyone add a comment to the PR to execute the action from the primary repository context instead of a fork to add the PR comment.");
+                return "";
+            }
+
+            throw (error);
         }
     }
 
