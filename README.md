@@ -73,6 +73,11 @@ This feature is particularly useful for other bot accounts, such as dependabot o
 
 Wildcards are accepted and will be treated as a regex .* character, so you can whitelist ranges of accounts. Use caution with wildcards to avoid whitelisting actual human contributors.
 
+Some common accounts you may want to whitelist:
+
+* `dependabot[bot]` - This is the account GitHub will use to open Dependabot fixes on your account.
+* Your personal account - Since you'll be opening the PR to add it you'll need to either sign the CLA or just add yourself to the whitelist.
+
 ### Using the Ethereum Blockchain
 
 The CLA Signature Bot has the option to additionally store the signatures on the Ethereum Blockchain. To use this feature just set the `blockchain-storage-flag: true`. A detailed description on integrating with the Ethereum Blockchain can be found [here](https://github.com/cla-assistant/blockchain-services). The original implementation of this feature is thanks to [@FabianRiewe](https://github.com/fabianriewe).
