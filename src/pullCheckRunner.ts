@@ -9,7 +9,7 @@ export class PullCheckRunner {
     }
 
     public async rerunLastCheck() {
-        if (this.settings.payloadAction === "pull_request") {
+        if (this.settings.payloadAction === "pull_request_target") {
             // We don't want to re-run ourselves in an infinite loop.
             return;
         }
@@ -27,7 +27,7 @@ export class PullCheckRunner {
             repo: this.settings.localRepositoryName,
             branch: prBranch,
             workflow_id: workflowId,
-            event: "pull_request"
+            event: "pull_request_target"
         });
         core.debug(`Found ${runs.data.total_count} previous runs.`);
 
