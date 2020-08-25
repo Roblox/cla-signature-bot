@@ -86,11 +86,11 @@ export class PullComments {
 
         return `**${this.BotName}:**
 
-Thank you for your submission, we really appreciate it. Like many open-source projects, we ask that ${subjectString} read and sign our [Contributor License Agreement](${claUrl}) before we can accept your contribution. You can sign the CLA by just by adding a comment to this pull request with this exact sentence:
+Thank you for your submission, we really appreciate it. We ask that ${subjectString} read and sign our [Contributor License Agreement](${claUrl}) before we can accept your contribution. You can sign the CLA by just by adding a comment to this pull request with this exact sentence:
 
 > ***${signatureString}***
 
-By commenting with the above message you are agreeing to the terms of the CLA. Your account will be recorded as agreeing to our CLA so you don't need to sign it again for future contributions to our company's repositories.
+By commenting with the above message you are agreeing to the terms of the CLA. Your account will be recorded as agreeing to our CLA so you don't need to sign it again for future contributions to this repository.
 
 ${authorText}
 `;
