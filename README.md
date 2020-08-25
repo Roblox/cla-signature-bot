@@ -26,7 +26,7 @@ name: "CLA Signature Bot"
 on:
   issue_comment:
     types: [created]
-  pull_request:
+  pull_request_target:
     types: [opened,closed,synchronize]
 
 jobs:
