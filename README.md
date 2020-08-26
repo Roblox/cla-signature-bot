@@ -101,6 +101,7 @@ The CLA Signature Bot has the option to additionally store the signatures on the
 | `branch`                      | _optional_  | Repository branch to store the signature file. Default is `master` |
 | `allowlist`                   | _optional_  | Comma-separated list of accounts to [ignore](https://github.com/roblox/cla-assistant#Allowlist-Accounts). Example: `user1,user2,bot*` |
 | `whitelist`                   | _optional_  | (Deprecated) Alias of 'allowlist' |
+| `allow-organization-members`  | _optional_  | Automatically allows any users in the same organization as the repository. Default is `false`. |
 | `blockchain-storage-flag`     | _optional_  | Whether to store the Contributor's signature data in the Ethereum blockchain. May be `true` or `false`. Default is `false`. |
 | `blockchain-webhook-endpoint` | _optional_  | The URL to post the blockchain request to. Can be used when running your own [blockchain-services](https://github.com/cla-assistant/blockchain-services) docker container. |
 | `use-remote-repo`             | _optional_  | Whether to use an alternate repository for storing the signature file than the one running the workflow. If `true` the remote repo name and PAT must be provided. Default is `false`. |

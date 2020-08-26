@@ -90,6 +90,31 @@ function getPullCheckRunnerMock(settings: IInputSettings): [PullCheckRunner, any
         return [pullCheckRunner, rerunLastCheckSpy];
 }
 
+function getMockOrganizationMembers(logins: Array<string>) {
+    return logins.map(login => {
+        return {
+            login,
+            id: 1,
+            node_id: '',
+            avatar_url: '',
+            gravatar_id: '',
+            url: '',
+            html_url: '',
+            followers_url: '',
+            following_url: '',
+            gists_url: '',
+            starred_url: '',
+            subscriptions_url: '',
+            organizations_url: '',
+            repos_url: '',
+            events_url: '',
+            received_events_url: '',
+            type: 'User',
+            site_admin: false
+        }
+    })
+}
+
 afterEach(() => {
     jest.resetAllMocks();
 });
@@ -115,7 +140,9 @@ it("Successfully constructs with full or empty settings", () => {
         remoteRepositoryOwner: "owner",
         signatureRegex: /.*/,
         signatureText: "signature",
-        allowlist: ""
+        allowlist: "",
+        whitelist: "",
+        allowOrganizationMembers: false
     } as IInputSettings;
 
     const runner = new ClaRunner({inputSettings: fullSettings});
@@ -154,7 +181,42 @@ it('Locks the PR when the PR is closed', async () => {
     expect(lockCommentSpy).toHaveBeenCalledTimes(1);
 });
 
-it('Returns early if there are no authors', async () => {
+it("Returns early if all authors are organization members and 'allowOrganizationMembers' is enabled", async () => {
+    const listMembersSpy = jest.spyOn(mockGitHub.orgs, 'listMembers')
+        .mockImplementation(async (params) => ({
+            url: "",
+            data: getMockOrganizationMembers(['SomeDude', 'SomeDudette', 'SomeEnby']),
+            status: 200,
+            headers: {
+                date: "",
+                "x-Octokit-media-type": "",
+                "x-Octokit-request-id": "",
+                "x-ratelimit-limit": "",
+                "x-ratelimit-remaining": "",
+                "x-ratelimit-reset": "",
+                link: "",
+                "last-modified": "",
+                etag: "",
+                status: "200",
+            },
+            [Symbol.iterator]: () => ({next: () =>  { return { value: null, done: true}}}),
+        }));
+    const settings = getSettings();
+    settings.allowOrganizationMembers = true
+
+    const [authors, getAuthorsSpy] = getPullAuthorsMock(settings);
+
+    const runner = new ClaRunner({
+        inputSettings: settings,
+        pullAuthors: authors
+        });
+    const result = await runner.execute();
+
+    expect(result).toStrictEqual(true);
+    expect(getAuthorsSpy).toHaveBeenCalledTimes(1);
+});
+
+it('Returns early if all authors are on whitelist', async () => {
     const settings = getSettings();
     const allowlist = new Allowlist("SomeDude,SomeDudette,SomeEnby");
 

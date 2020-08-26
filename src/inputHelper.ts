@@ -53,6 +53,7 @@ export function getInputs(): IInputSettings {
     settings.claFilePath = core.getInput("path-to-signatures") || "signatures/cla.json";
     settings.branch = core.getInput("branch") || "master";
     settings.allowlist = core.getInput("allowlist") || core.getInput("whitelist") || "";
+    settings.allowOrganizationMembers = (core.getInput('allow-organization-members') || 'FALSE').toUpperCase() === 'TRUE';
 
     settings.signatureText = core.getInput("signature-text") || "I have read the CLA Document and I hereby sign the CLA";
     settings.signatureRegex = new RegExp(core.getInput("signature-regex") || /^.*I\s*HAVE\s*READ\s*THE\s*CLA\s*DOCUMENT\s*AND\s*I\s*HEREBY\s*SIGN\s*THE\s*CLA/);
