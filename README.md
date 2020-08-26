@@ -42,7 +42,7 @@ jobs:
           url-to-cladocument: 'https://link/to/your/legal/CLA/document/of/choice'
           # This branch can't have protections, commits are made directly to the specified branch.
           branch: 'master'
-          whitelist: githubuser_example,anotherGitHubuser,bot
+          allowlist: githubuser_example,anotherGitHubuser,bot
           blockchain-storage-flag: false
 
 ```
@@ -53,7 +53,7 @@ CLA action workflow will be triggered on all Pull Request `opened, synchronize, 
 
 When the CLA workflow is triggered on pull request `closed` event, it will lock the Pull Request conversation after the Pull Request merge so that the contributors cannot modify or delete the signature comments later.
 
-If your signature is not on file and your account isn't in the whitelist, the CLA Bot will provide instructions on what to do in the PR Conversation and block the PR from merging until all authors of commits sign the CLA.
+If your signature is not on file and your account isn't in the allowlist, the CLA Bot will provide instructions on what to do in the PR Conversation and block the PR from merging until all authors of commits sign the CLA.
 
 ![Screenshot 2020-02-13 at 10 24 17](https://user-images.githubusercontent.com/33329946/74420003-0ca6e780-4e4b-11ea-85a7-4ccc3f53e3d5.png)
 
@@ -65,18 +65,18 @@ Add a comment with the requested signature to your pull request to sign the CLA.
 
 ## Additional Configuration Options
 
-### Whitelist Accounts
+### Allowlist Accounts
 
-The `whitelist` parameter is a comma-seprated list of accounts which should not be considered for CLA signature verification. These accounts will **completely bypass the signature process**, and if all authors are whitelisted in a PR the CLA Signature Action won't even comment on the PR.
+The `allowlist` parameter is a comma-seprated list of accounts which should not be considered for CLA signature verification. These accounts will **completely bypass the signature process**, and if all authors are allowlisted in a PR the CLA Signature Action won't even comment on the PR.
 
-This feature is particularly useful for other bot accounts, such as dependabot or greenkeeper. For example, `dependabot-preview[bot],greenkeeper[bot]` will whitelist both of those bot accounts.
+This feature is particularly useful for other bot accounts, such as dependabot or greenkeeper. For example, `dependabot-preview[bot],greenkeeper[bot]` will allowlist both of those bot accounts.
 
-Wildcards are accepted and will be treated as a regex .* character, so you can whitelist ranges of accounts. Use caution with wildcards to avoid whitelisting actual human contributors.
+Wildcards are accepted and will be treated as a regex .* character, so you can allowlist ranges of accounts. Use caution with wildcards to avoid allowlisting actual human contributors.
 
-Some common accounts you may want to whitelist:
+Some common accounts you may want to allowlist:
 
 * `dependabot[bot]` - This is the account GitHub will use to open Dependabot fixes on your account.
-* Your personal account - Since you'll be opening the PR to add it you'll need to either sign the CLA or just add yourself to the whitelist.
+* Your personal account - Since you'll be opening the PR to add it you'll need to either sign the CLA or just add yourself to the allowlist.
 
 ### Using the Ethereum Blockchain
 
@@ -97,7 +97,8 @@ The CLA Signature Bot has the option to additionally store the signatures on the
 | `url-to-cladocument`          | _Required_  | The full URL of your CLA document. The CLA bot will link to this document in a Pull Request comment, so make sure it's public. Could be a gist link, or a link to a file in the same repo. |
 | `path-to-signatures`          | _optional_  | Path to the signature file in the repository. Default is `./signatures/cla.json`. |
 | `branch`                      | _optional_  | Repository branch to store the signature file. Default is `master` |
-| `whitelist`                   | _optional_  | Comma-separated list of accounts to [ignore](https://github.com/roblox/cla-assistant#Whitelist-Accounts). Example: `user1,user2,bot*` |
+| `allowlist`                   | _optional_  | Comma-separated list of accounts to [ignore](https://github.com/roblox/cla-assistant#Allowlist-Accounts). Example: `user1,user2,bot*` |
+| `whitelist`                   | _optional_  | (Deprecated) Alias of 'allowlist' |
 | `blockchain-storage-flag`     | _optional_  | Whether to store the Contributor's signature data in the Ethereum blockchain. May be `true` or `false`. Default is `false`. |
 | `blockchain-webhook-endpoint` | _optional_  | The URL to post the blockchain request to. Can be used when running your own [blockchain-services](https://github.com/cla-assistant/blockchain-services) docker container. |
 | `use-remote-repo`             | _optional_  | Whether to use an alternate repository for storing the signature file than the one running the workflow. If `true` the remote repo name and PAT must be provided. Default is `false`. |

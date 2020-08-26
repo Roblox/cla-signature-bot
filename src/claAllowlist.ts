@@ -1,22 +1,22 @@
 import { Author } from "./authorMap";
 import * as core from '@actions/core'
 
-export class Whitelist {
-    readonly whitelist: string[];
+export class Allowlist {
+    readonly allowlist: string[];
 
     readonly reRegExpChar = /[\\^$.*+\-?()[\]{}|]/g;
     readonly reHasRegExpChar = RegExp(this.reRegExpChar.source);
 
-    constructor(whitelist: string) {
-        this.whitelist = (whitelist || "").split(',').map(s => s.trim());
+    constructor(allowlist: string) {
+        this.allowlist = (allowlist || "").split(',').map(s => s.trim());
     }
 
     /**
-     * Determine if an author matches a whitelist rule.
-     * @param user The user to check against the whitelist.
+     * Determine if an author matches an allowlist rule.
+     * @param user The user to check against the allowlist.
      */
-    public isUserWhitelisted(user: Author): boolean {
-        return this.whitelist.some(pattern => {
+    public isUserAllowlisted(user: Author): boolean {
+        return this.allowlist.some(pattern => {
             let result = false;
             // Glob patterns need special handling, otherwise just match username.
             if (pattern.includes('*')) {
@@ -27,7 +27,7 @@ export class Whitelist {
             }
 
             if (result) {
-                core.info(`Whitelisted author ${user.name} excluded from CLA requirement.`);
+                core.info(`Allowlisted author ${user.name} excluded from CLA requirement.`);
             }
             return result;
         });

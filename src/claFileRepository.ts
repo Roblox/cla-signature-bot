@@ -68,7 +68,7 @@ export class ClaFileRepository {
         claFile: ClaFile,
         fileSha?: string): Promise<any> {
         if (this.settings.isRemoteRepoReadonly) {
-            throw new Error(`Cannot write to remote repo as no remote-repo-pat was provided. This usually means this check was run in a pull request from a fork. Initialize the CLA file manually, or open a PR from a branch in the protected repository, not a fork, and using an account that is not whitelisted.`);
+            throw new Error(`Cannot write to remote repo as no remote-repo-pat was provided. This usually means this check was run in a pull request from a fork. Initialize the CLA file manually, or open a PR from a branch in the protected repository, not a fork, and using an account that is not allowlisted.`);
         }
 
         return await this.settings.octokitRemote.repos.createOrUpdateFile({
