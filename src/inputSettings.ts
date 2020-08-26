@@ -67,7 +67,12 @@ export interface IInputSettings {
     branch: string
 
     /**
-     * The whitelist of accounts which should not be prompted to sign the CLA.
+     * The allowlist of accounts which should not be prompted to sign the CLA.
+     */
+    allowlist: string
+
+    /**
+     * Alias of 'allowlist'
      */
     whitelist: string
 

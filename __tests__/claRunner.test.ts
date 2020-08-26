@@ -1,7 +1,7 @@
 import { ClaRunner} from "../src/claRunner"
 import * as github from '@actions/github';
 import { IInputSettings } from "../src/inputSettings"
-import { Whitelist } from "../src/claWhitelist";
+import { Allowlist } from "../src/claAllowlist";
 import { PullAuthors } from "../src/pullAuthors";
 import { Author } from "../src/authorMap";
 import { ClaFileRepository } from "../src/claFileRepository";
@@ -115,7 +115,7 @@ it("Successfully constructs with full or empty settings", () => {
         remoteRepositoryOwner: "owner",
         signatureRegex: /.*/,
         signatureText: "signature",
-        whitelist: ""
+        allowlist: ""
     } as IInputSettings;
 
     const runner = new ClaRunner({inputSettings: fullSettings});
@@ -156,13 +156,13 @@ it('Locks the PR when the PR is closed', async () => {
 
 it('Returns early if there are no authors', async () => {
     const settings = getSettings();
-    const whitelist = new Whitelist("SomeDude,SomeDudette,SomeEnby");
+    const allowlist = new Allowlist("SomeDude,SomeDudette,SomeEnby");
 
     const [authors, getAuthorsSpy] = getPullAuthorsMock(settings);
 
     const runner = new ClaRunner({
         inputSettings: settings,
-        claWhitelist: whitelist,
+        claAllowlist: allowlist,
         pullAuthors: authors
         });
     const result = await runner.execute();
@@ -193,7 +193,7 @@ it ('Fails if not everyone has signed', async () => {
 
 it('succeeds if a new signature makes everyone signed', async () => {
     const settings = getSettings();
-    settings.whitelist = "SomeDude,SomeDudette";
+    settings.allowlist = "SomeDude,SomeDudette";
     settings.pullRequestNumber = 86;
 
     const [authors] = getPullAuthorsMock(settings);

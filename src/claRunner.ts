@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import { Author } from "./authorMap";
 import { BlockchainPoster } from "./blockchainPoster";
 import { ClaFileRepository } from "./claFileRepository";
-import { Whitelist } from "./claWhitelist";
+import { Allowlist } from "./claAllowlist";
 import { IInputSettings } from "./inputSettings";
 import { PullComments } from './pullComments';
 import { PullAuthors } from './pullAuthors';
@@ -11,7 +11,7 @@ import { PullCheckRunner } from './pullCheckRunner';
 export class ClaRunner {
     readonly settings: IInputSettings;
     readonly claFileRepository: ClaFileRepository;
-    readonly whitelist: Whitelist;
+    readonly allowlist: Allowlist;
     readonly pullComments: PullComments;
     readonly pullAuthors: PullAuthors;
     readonly blockchainPoster: BlockchainPoster;
@@ -20,14 +20,14 @@ export class ClaRunner {
     constructor({
         inputSettings,
         claRepo,
-        claWhitelist,
+        claAllowlist,
         pullComments,
         pullAuthors,
         blockchainPoster,
         pullCheckRunner }: {
             inputSettings: IInputSettings;
             claRepo?: ClaFileRepository;
-            claWhitelist?: Whitelist;
+            claAllowlist?: Allowlist;
             pullComments?: PullComments;
             pullAuthors?: PullAuthors;
             blockchainPoster?: BlockchainPoster;
@@ -35,7 +35,7 @@ export class ClaRunner {
         }) {
         this.settings = inputSettings;
         this.claFileRepository = (!claRepo) ? new ClaFileRepository(this.settings) : claRepo;
-        this.whitelist = (!claWhitelist) ? new Whitelist(this.settings.whitelist) : claWhitelist;
+        this.allowlist = (!claAllowlist) ? new Allowlist(this.settings.allowlist) : claAllowlist;
         this.pullComments = (!pullComments) ? new PullComments(this.settings) : pullComments
         this.pullAuthors = (!pullAuthors) ? new PullAuthors(this.settings) : pullAuthors
         this.blockchainPoster = (!blockchainPoster) ? new BlockchainPoster(this.settings) : blockchainPoster
@@ -49,16 +49,16 @@ export class ClaRunner {
             return true;
         }
 
-        // Just drop whitelisted authors entirely, no sense in processing them.
+        // Just drop allowlisted authors entirely, no sense in processing them.
         let rawAuthors: Author[] = await this.pullAuthors.getAuthors();
-        rawAuthors = rawAuthors.filter(a => !this.whitelist.isUserWhitelisted(a));
+        rawAuthors = rawAuthors.filter(a => !this.allowlist.isUserAllowlisted(a));
 
         if (rawAuthors.length === 0) {
-            core.info("No committers left after whitelisting. Approving pull request.");
+            core.info("No committers left after allowlisting. Approving pull request.");
             return true;
         }
 
-        core.debug(`Found a total of ${rawAuthors.length} authors after whitelisting.`);
+        core.debug(`Found a total of ${rawAuthors.length} authors after allowlisting.`);
         core.debug(`Authors: ${rawAuthors.map(n => n.name).join(', ')}`);
 
         const claFile = await this.claFileRepository.getClaFile();

@@ -66,11 +66,25 @@ it('sets defaults', () => {
     expect(settings.localRepositoryOwner).toBe("some-owner");
     expect(settings.repositoryAccessToken).toBe(settings.localAccessToken);
     expect(settings.claFilePath).toBeTruthy();
-    expect(settings.whitelist).toBeFalsy();
+    expect(settings.allowlist).toBeFalsy();
     expect(settings.emptyCommitFlag).toBe(false);
 
     expect(settings.octokitRemote).toBeTruthy();
     expect(settings.octokitLocal).toBeTruthy();
+})
+
+it('Accepts allowlist', () => {
+    inputs["url-to-cladocument"] = "some/path/to/a/doc.md";
+    inputs["allowlist"] = "some-allowed-user,another-allowed-user";
+    const settings: IInputSettings = inputHelper.getInputs();
+    expect(settings.allowlist).toBe("some-allowed-user,another-allowed-user");
+})
+
+it("Accepts allowlist as alias 'whitelist'", () => {
+    inputs["url-to-cladocument"] = "some/path/to/a/doc.md";
+    inputs["whitelist"] = "some-allowed-user,another-allowed-user";
+    const settings: IInputSettings = inputHelper.getInputs();
+    expect(settings.allowlist).toBe("some-allowed-user,another-allowed-user");
 })
 
 it('Rejects invalid repository name arguments', () => {

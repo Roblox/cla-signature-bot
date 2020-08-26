@@ -29,8 +29,11 @@ inputs:
   blockchain-webhook-endpoint:
     description: "(Optional) The URL to post the blockchain request to."
     default: "https://u9afh6n36g.execute-api.eu-central-1.amazonaws.com/dev/webhook"
-  whitelist:
+  allowlist:
     description: "Comma-separated list of users to exclude from CLA requirement. Can use * characters for wildcards."
+    default: ""
+  whitelist:
+    description: "(Deprecated) Alias of 'allowlist'."
     default: ""
   signature-text:
     description: "The text to require as a signature."
