@@ -32,6 +32,9 @@ inputs:
   whitelist:
     description: "Comma-separated list of users to exclude from CLA requirement. Can use * characters for wildcards."
     default: ""
+  allow-organization-members:
+    description: "(Optional) Automatically allows any users in the same organization as the repository"
+    default: false
   signature-text:
     description: "The text to require as a signature."
   signature-regex:

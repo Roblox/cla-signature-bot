@@ -72,6 +72,11 @@ export interface IInputSettings {
     whitelist: string
 
     /**
+     * Whether accounts in the same organization as the repository should be allowed automatically
+     */
+    allowOrganizationMembers: boolean
+
+    /**
      * The regex to search PR comments for as a signature.
      */
     signatureRegex: RegExp

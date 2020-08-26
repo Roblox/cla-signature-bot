@@ -49,26 +49,30 @@ export class ClaRunner {
             return true;
         }
 
-        // Just drop whitelisted authors entirely, no sense in processing them.
-        let rawAuthors: Author[] = await this.pullAuthors.getAuthors();
-        rawAuthors = rawAuthors.filter(a => !this.whitelist.isUserWhitelisted(a));
+        // Just drop whitelisted authors and organization members entirely, no sense in processing them.
+        const [rawAuthors, organizationMembers]: [Author[], String[]] = await Promise.all([
+            this.pullAuthors.getAuthors(),
+            this.getOrganizationMembers()
+        ]);
 
-        if (rawAuthors.length === 0) {
+        const requiredAuthors = rawAuthors.filter(a => !this.whitelist.isUserWhitelisted(a) && !organizationMembers.includes(a.name));
+
+        if (requiredAuthors.length === 0) {
             core.info("No committers left after whitelisting. Approving pull request.");
             return true;
         }
 
-        core.debug(`Found a total of ${rawAuthors.length} authors after whitelisting.`);
-        core.debug(`Authors: ${rawAuthors.map(n => n.name).join(', ')}`);
+        core.debug(`Found a total of ${requiredAuthors.length} authors after whitelisting.`);
+        core.debug(`Authors: ${requiredAuthors.map(n => n.name).join(', ')}`);
 
         const claFile = await this.claFileRepository.getClaFile();
-        let authorMap = claFile.mapSignedAuthors(rawAuthors);
+        let authorMap = claFile.mapSignedAuthors(requiredAuthors);
 
         let newSignature = claFile.addSignature(await this.pullComments.getNewSignatures(authorMap));
         if (newSignature.length > 0) {
             const newNames = newSignature.map(s => s.name).join(', ');
             core.debug(`Found new signatures: ${newNames}.`)
-            authorMap = claFile.mapSignedAuthors(rawAuthors);
+            authorMap = claFile.mapSignedAuthors(requiredAuthors);
             await Promise.all([
                 this.claFileRepository.commitClaFile(`Add ${newNames}.`),
                 this.blockchainPoster.postToBlockchain(newSignature),
@@ -99,5 +103,16 @@ export class ClaRunner {
         } catch (error) {
             core.error(`Failed to lock pull request #${this.settings.pullRequestNumber}.`);
         }
+    }
+
+    private async getOrganizationMembers(): Promise<Array<String>> {
+        if (!this.settings.allowOrganizationMembers) {
+            return [];
+        }
+
+        const response = await this.settings.octokitLocal.orgs.listMembers({
+            org: this.settings.localRepositoryOwner,
+        });
+        return response.data.map(user => user.login);
     }
 }
