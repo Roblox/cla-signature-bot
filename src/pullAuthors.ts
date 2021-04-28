@@ -50,26 +50,29 @@ query($owner:String! $name:String! $number:Int! $cursor:String!){
 
 
     public async getAuthors(): Promise<Author[]> {
-        const result = await this.queryForCommitAuthors();
-        return result.repository.pullRequest.commits.edges
-            .map(e => this.getUserFromCommit(e.node.commit)) // Get the authors
+        const authors = await this.queryForCommitAuthors();
+        return authors
             .filter((author: Author, index: number, self: Author[]) => self.findIndex(a => a.name === author.name) === index) // Only unique authors
             .filter((a: Author) => a.id !== 41898282); // And skip accounts with this ID for some reason?
     }
 
-    private async queryForCommitAuthors(): Promise<any> {
+    private async queryForCommitAuthors(): Promise<Author[]> {
         try {
-            // TODO: Pagination on large queries.
-            const result = await this.settings.octokitLocal.graphql(this.getCommitAuthorsQuery, {
-                owner: this.settings.localRepositoryOwner,
-                name: this.settings.localRepositoryName,
-                number: this.settings.pullRequestNumber,
-                cursor: ''
-            }) as any;
-            if (result.repository.pullRequest.commits.totalCount > 100) {
-                throw new Error("Commit query has more than 100 commits and GraphQL pagination isn't supported yet! Can't validate all of the authors of this PR.")
-            }
-            return result;
+            let result;
+            let authors: Author[] = [];
+            do {
+                result = await this.settings.octokitLocal.graphql(this.getCommitAuthorsQuery, {
+                    owner: this.settings.localRepositoryOwner,
+                    name: this.settings.localRepositoryName,
+                    number: this.settings.pullRequestNumber,
+                    cursor: result ? result.repository.pullRequest.commits.pageInfo.endCursor : ''
+                }) as any;
+                authors.push(
+                    ...result.repository.pullRequest.commits.edges
+                        .map(e => this.getUserFromCommit(e.node.commit))
+                );
+            } while (result.repository.pullRequest.commits.pageInfo.hasNextPage)
+            return authors;
         } catch (error) {
             throw new Error(`GraphQL query to get commit authors failed: '${error.message}'. Details: ${JSON.stringify(error)} `);
         }

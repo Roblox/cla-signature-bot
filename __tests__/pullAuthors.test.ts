@@ -14,7 +14,7 @@ const settings = {
     octokitLocal: mockGitHub,
 } as IInputSettings
 
-function mockWith(hasGitHubAccount = true, hasTooManyCommits = false) {
+function mockWith(hasGitHubAccount = true, numCommits = 1) {
     // Committers that have github accounts get user objects, committers that
     // don't get a committer object. The IDs should match at least one signatureComment
     // in the listComments mock so that they can be correlated.
@@ -32,19 +32,25 @@ function mockWith(hasGitHubAccount = true, hasTooManyCommits = false) {
             }
         }
     });
+    const edges: any = [];
+    for (let i = 0; i < numCommits; i++) {
+        edges.push({
+            node: {
+                commit: commit
+            }
+        });
+    }
     const graphqlSpy = jest.spyOn(mockGitHub, 'graphql')
-        .mockImplementation(async (query) => ({
+        .mockImplementation(async (query, parameters) => ({
             repository: {
                 pullRequest: {
                     commits: {
-                        totalCount: hasTooManyCommits ? 102 : 1,
-                        edges: [
-                            {
-                                node: {
-                                    commit: commit
-                                }
-                            }
-                        ]
+                        totalCount: numCommits,
+                        edges,
+                        pageInfo: {
+                            endCursor: 'cursor',
+                            hasNextPage: numCommits == 1 || parameters && parameters.cursor ? false : true
+                        }
                     }
                 }
             }
@@ -87,10 +93,17 @@ it("Returns unknown accounts without an id", async () => {
     expect(graphqlSpy).toHaveBeenCalledTimes(1);
 });
 
-it("Throws if too many commits are in the pull request to process", async () => {
-    const [graphqlSpy] = mockWith(false, true);
+it("Returns commit authors from >100 commits correctly", async () => {
+    const [graphqlSpy] = mockWith(true, 150);
 
     const pullAuthors = new PullAuthors(settings);
-    expect(pullAuthors.getAuthors()).rejects.toThrow();
-    expect(graphqlSpy).toHaveBeenCalled();
+    const result = await pullAuthors.getAuthors();
+
+    expect(result.length).toBe(1);
+    expect(result[0].name).toBe("SomeAuthor");
+    expect(result[0].id).toBe(12345);
+    expect(result[0].pullRequestNo).toBe(settings.pullRequestNumber);
+    expect(result[0].signed).toStrictEqual(false);
+
+    expect(graphqlSpy).toHaveBeenCalledTimes(2);
 });
