@@ -73,11 +73,15 @@ export class PullComments {
         const signed = authorMap.getSigned();
         const unsigned = authorMap.getUnsigned();
 
+        let noAccount = authorMap.getNonGithubAccounts();
+
         authorText += `**${signed.length}** out of **${authorMap.count}** committers have signed the CLA.\n`;
         signed.forEach(a => authorText += `:white_check_mark: @${a.name}\n`);
-        unsigned.forEach(a => authorText += `:x: @${a.name}\n`);
+        unsigned.forEach(a => {
+            const hasNoAccount = noAccount.filter(acc => acc.name === a.name).length > 0;
+            authorText += `:x: ${hasNoAccount ? '' : '@'}${a.name}\n`;
+        });
 
-        let noAccount = authorMap.getNonGithubAccounts();
         if (noAccount.length > 0) {
             authorText += "---\n";
             authorText += `GitHub can't find an account for **${noAccount.map(a => a.name).join(', ')}**.\n`
