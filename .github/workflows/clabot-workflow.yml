@@ -54,6 +54,7 @@ jobs:
     steps:
       - name: "Run CLA Bot"
         uses: roblox/cla-signature-bot@v2
+        env: ${{ github.token }}
         with:
           blockchain-storage-flag: ${{ inputs.blockchain-storage-flag }}
           blockchain-webhook-endpoint: ${{ inputs.blockchain-webhook-endpoint }}
