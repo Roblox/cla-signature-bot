@@ -10,4 +10,6 @@ jobs:
     uses: Roblox/cla-signature-bot/.github/workflows/clabot-workflow.yml@73db6348cf54e038417c862fdb59cac90faea414
     with:
       whitelist: "cliffchapmanrbx"
+      remote-repo-name: "roblox/cla-bot-store"
+      use-remote-repo: true
     secrets: inherit
