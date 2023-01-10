@@ -3,15 +3,6 @@ name: CLA Signature Bot
 on:
   workflow_call:
     inputs:
-      blockchain-storage-flag:
-        description: "(Optional) Store all the blockchain signatures in the ethirium blockchain as a smart contract."
-        required: false
-        type: boolean
-      blockchain-webhook-endpoint:
-        description: "(Optional) The URL to post the blockchain request to."
-        required: false
-        type: string
-        default: "https://u9afh6n36g.execute-api.eu-central-1.amazonaws.com/dev/webhook"
       branch:
         description: "The branch where the CLAs will be stored."
         required: false
@@ -57,8 +48,6 @@ jobs:
         env: 
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          blockchain-storage-flag: ${{ inputs.blockchain-storage-flag }}
-          blockchain-webhook-endpoint: ${{ inputs.blockchain-webhook-endpoint }}
           branch: ${{ inputs.branch }}
           path-to-signatures: ${{ inputs.path-to-signatures }}
           remote-repo-name: ${{ inputs.remote-repo-name }}
