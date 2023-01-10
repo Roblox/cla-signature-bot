@@ -8,7 +8,6 @@ on:
 jobs:
   call-clabot-workflow:
     uses: Roblox/cla-signature-bot/.github/workflows/clabot-workflow.yml@master
-    if: contains(github.event.comment.html_url, '/pull/') || github.event_name != 'issue_comment'
     with:
       whitelist: "cliffchapmanrbx"
     secrets: inherit
