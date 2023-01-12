@@ -6,8 +6,8 @@ on:
     types: [opened,closed,synchronize]
 
 jobs:
-  clabot:
-    uses: Roblox/cla-signature-bot/.github/workflows/clabot-workflow.yml@580f57d62cd843708e8ad0d2b351de4a61d5070c
+  call-clabot-workflow:
+    uses: Roblox/cla-signature-bot/.github/workflows/clabot-workflow.yml@master
     with:
       whitelist: "cliffchapmanrbx"
       use-remote-repo: true
