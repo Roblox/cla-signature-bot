@@ -6,7 +6,7 @@ on:
     types: [opened,closed,synchronize]
 
 jobs:
-  call-clabot-workflow:
+  clabot:
     uses: Roblox/cla-signature-bot/.github/workflows/clabot-workflow.yml@53aadac6d6f5769d33f955c1611b9fc89f8c9a77
     with:
       whitelist: "cliffchapmanrbx"
