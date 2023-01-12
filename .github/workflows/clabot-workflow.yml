@@ -1,5 +1,4 @@
-name: CLA Signature Bot
-
+name: clabot
 on:
   workflow_call:
     inputs:
