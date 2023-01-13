@@ -74,8 +74,6 @@ export class PullComments {
         const unsigned = authorMap.getUnsigned();
 
         let noAccount = authorMap.getNonGithubAccounts();
-        core.info(JSON.stringify(unsigned))
-        core.info(JSON.stringify(noAccount))
 
         authorText += `**${signed.length}** out of **${authorMap.count}** committers have signed the CLA.\n`;
         signed.forEach(a => authorText += `:white_check_mark: @${a.name}\n`);
