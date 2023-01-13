@@ -1,0 +1,59 @@
+name: CLA Signature Bot
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: "The branch where the CLAs will be stored."
+        required: false
+        type: string
+        default: "master"
+      path-to-signatures:
+        description: "Give a path for storing CLAs in a json file."
+        required: false
+        type: string
+        default: "signatures/cla.json"
+      remote-repo-name:
+        description: "The name of the remote github repository for storing CLA signatures. Must be owner-name/repo-name format."
+        required: false
+        type: string
+      signature-regex:
+        description: "The regex to locate the signature text. Should be single quoted. Note that comment bodies are toUpperCase'd before matching."
+        required: false
+        type: string
+      signature-text:
+        description: "The text to require as a signature."
+        required: false
+        type: string
+      url-to-cladocument:
+        required: false
+        type: string
+        default: "https://roblox.github.io/cla-bot-store/"
+      use-remote-repo:
+        description: "Whether to use a different repository for storing CLA signatures."
+        required: false
+        type: boolean
+      whitelist:
+        description: "Comma-separated list of users to exclude from CLA requirement. Can use * characters for wildcards."
+        required: false
+        type: string
+
+jobs:
+  clabot:
+    runs-on: ubuntu-latest
+    if: contains(github.event.comment.html_url, '/pull/') || github.event_name != 'issue_comment'
+    steps:
+      - name: "Run CLA Bot"
+        uses: roblox/cla-signature-bot@v2
+        env: 
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          branch: ${{ inputs.branch }}
+          path-to-signatures: ${{ inputs.path-to-signatures }}
+          remote-repo-name: ${{ inputs.remote-repo-name }}
+          remote-repo-pat: ${{ secrets.CLA_REMOTE_REPO_PAT }}
+          signature-regex: ${{ inputs.signature-regex }}
+          signature-text: ${{ inputs.signature-text }}
+          url-to-cladocument: ${{ inputs.url-to-cladocument }}
+          use-remote-repo: ${{ inputs.use-remote-repo }}
+          whitelist: ${{ inputs.whitelist }}
