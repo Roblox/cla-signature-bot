@@ -67,6 +67,7 @@ it('sets defaults', () => {
     expect(settings.repositoryAccessToken).toBe(settings.localAccessToken);
     expect(settings.claFilePath).toBeTruthy();
     expect(settings.whitelist).toBeFalsy();
+    expect(settings.allowOrganizationMembers).toBeFalsy();
     expect(settings.emptyCommitFlag).toBe(false);
 
     expect(settings.octokitRemote).toBeTruthy();
