@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import { context } from "@actions/github";
 import { Author } from "./authorMap";
 import { BlockchainPoster } from "./blockchainPoster";
 import { ClaFileRepository } from "./claFileRepository";
@@ -47,6 +48,9 @@ export class ClaRunner {
             // PR is closed and should be locked to preserve signatures.
             await this.lockPullRequest();
             return true;
+        } else if (this.settings.payloadAction === "issue_comment" && !context.payload.issue?.pull_request) {
+            core.info("Skipping issue comment")
+            return true
         }
 
         // Just drop whitelisted authors entirely, no sense in processing them.

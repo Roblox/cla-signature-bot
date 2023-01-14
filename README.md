@@ -31,6 +31,8 @@ on:
 
 jobs:
   CLABot:
+    # Skip job when triggered by an issue comment rather than a PR comment
+    if: github.event_name == 'pull_request' || contains(github.event.comment.html_url, '/pull/')
     runs-on: ubuntu-latest
     steps:
       - name: "CLA Signature Bot"
