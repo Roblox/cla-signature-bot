@@ -467,7 +467,7 @@ function getClaComment(body = "The text 'CLA Signature Action' is required to fi
     });
 }
 
-function mockWith(hasExistingComment = true, hasGitHubAccount = true, withNewlineSignature = false, withReadonlyToken = false) {
+function mockWith(hasExistingComment = true, hasGitHubAccount = true, multiPage = false, withNewlineSignature = false, withReadonlyToken = false) {
     const signatureComment = withNewlineSignature ? getNewlineSignatureComment() : getSignatureComment();
 
     const createCommentSpy = jest.spyOn(mockGitHub.issues, 'createComment')
@@ -496,13 +496,15 @@ function mockWith(hasExistingComment = true, hasGitHubAccount = true, withNewlin
     const listCommentsSpy = jest.spyOn(mockGitHub.issues, 'listComments')
         .mockImplementation(async (params) => ({
             url: "",
-            data: [
-                hasExistingComment ? getClaComment() : getRandomComment(),
-                getRandomComment(),
-                getRandomComment(),
-                getRandomComment(),
-                signatureComment,
-            ],
+            data: multiPage && params!.page === 1
+                ? (new Array(100)).fill(getRandomComment())
+                : [
+                    hasExistingComment ? getClaComment() : getRandomComment(),
+                    getRandomComment(),
+                    getRandomComment(),
+                    getRandomComment(),
+                    signatureComment,
+                ],
             headers: okHeader,
             status: 200,
             [Symbol.iterator]: () => ({ next: () => { return { value: null, done: true } } }),
@@ -571,6 +573,29 @@ it("Updates existing comment if one is present", async () => {
     // List comments should have been called (to get the list to search for existing comments)
     // along with creating a comment. Update comment should not have been called.
     expect(listCommentsSpy).toHaveBeenCalled();
+    expect(updateCommentSpy).toHaveBeenCalled();
+    expect(createCommentSpy).toHaveBeenCalledTimes(0);
+});
+
+it("Updates existing comment after first page if one is present", async () => {
+    const [createCommentSpy, updateCommentSpy, listCommentsSpy] = mockWith(true, true, true);
+
+    const localRepo = new PullComments(settings);
+    const author =
+    {
+        name: "SomeAuthor",
+        signed: false,
+        id: 12345
+    };
+    const authorMap = new AuthorMap([author]);
+    const result = await localRepo.setClaComment(authorMap);
+
+    // And the regex to find the cla title should work.
+    expect(result.match(localRepo.BotNameRegex)).toBeTruthy();
+
+    // List comments should have been called (to get the list to search for existing comments)
+    // along with creating a comment. Update comment should not have been called.
+    expect(listCommentsSpy).toHaveBeenCalledTimes(2);
     expect(updateCommentSpy).toHaveBeenCalled();
     expect(createCommentSpy).toHaveBeenCalledTimes(0);
 });
@@ -663,8 +688,32 @@ it("Maps new signature events", async () => {
     expect(listCommentsSpy).toHaveBeenCalledTimes(1);
 });
 
-it("Maps new signature with a newline too", async () => {
+it("Maps new signature events after first page of comments", async () => {
     const [, , listCommentsSpy, reposGetSpy] = mockWith(true, true, true);
+
+    const localRepo = new PullComments(settings);
+    const author =
+    {
+        name: "CommentingUser",
+        signed: false,
+        id: 12345
+    };
+    const authorMap = new AuthorMap([author]);
+    const signatures = await localRepo.getNewSignatures(authorMap);
+
+    expect(signatures.length).toBe(1);
+    expect(signatures[0].name).toBe(author.name);
+    expect(signatures[0].id).toBe(author.id);
+    expect(signatures[0].repoId).toBe(123456789);
+    expect(signatures[0].comment_id).toBe(123);
+    expect(signatures[0].created_at).toBe("Creation time.");
+
+    expect(reposGetSpy).toHaveBeenCalledTimes(1);
+    expect(listCommentsSpy).toHaveBeenCalledTimes(2);
+});
+
+it("Maps new signature with a newline too", async () => {
+    const [, , listCommentsSpy, reposGetSpy] = mockWith(true, true, false, true);
 
     const localRepo = new PullComments(settings);
     const author =
@@ -733,7 +782,7 @@ it("Returns an empty list if no new signatures.", async () => {
 });
 
 it("Doesn't throw if it gets an 403 when trying to write", async () => {
-    const [createCommentSpy, updateCommentSpy, listCommentsSpy] = mockWith(true, true, false, true);
+    const [createCommentSpy, updateCommentSpy, listCommentsSpy] = mockWith(true, true, false, false, true);
 
     const localRepo = new PullComments(settings);
     const unsignedAuthor =

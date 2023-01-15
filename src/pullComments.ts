@@ -47,13 +47,24 @@ export class PullComments {
     }
 
     private async getExistingComment() {
+        let page = 1;
+        let comments;
         try {
-            const response = await this.settings.octokitLocal.issues.listComments({
-                owner: this.settings.localRepositoryOwner,
-                repo: this.settings.localRepositoryName,
-                issue_number: this.settings.pullRequestNumber
-            });
-            return response.data.find(c => c.body.match(this.BotNameRegex));
+            do {
+                const response = await this.settings.octokitLocal.issues.listComments({
+                    owner: this.settings.localRepositoryOwner,
+                    repo: this.settings.localRepositoryName,
+                    issue_number: this.settings.pullRequestNumber,
+                    page,
+                    per_page: 100
+                });
+                comments = response.data
+                const botComment = comments.find(c => c.body.match(this.BotNameRegex));
+                if (botComment) {
+                    return botComment;
+                }
+                page += 1
+            } while (comments.length === 100)
         } catch (error) {
             throw new Error(`Failed to get PR comments: ${error.message}. Details: ${JSON.stringify(error)}`);
         }
@@ -106,19 +117,37 @@ ${authorText}
             return [];
         }
 
-        const [commentList, repoId] = await Promise.all([
-            this.settings.octokitLocal.issues.listComments({
-                owner: this.settings.localRepositoryOwner,
-                repo: this.settings.localRepositoryName,
-                issue_number: this.settings.pullRequestNumber
-            }),
-            this.getRepoId()]);
+        let page = 1;
+        let comments;
+        const newSignatures: Record<string, any>[] = []
+        try {
+            do {
+                const response = await this.settings.octokitLocal.issues.listComments({
+                    owner: this.settings.localRepositoryOwner,
+                    repo: this.settings.localRepositoryName,
+                    issue_number: this.settings.pullRequestNumber,
+                    page,
+                    per_page: 100
+                });
+                comments = response.data
+                newSignatures.push(
+                    // Limit the search space to comments actually made by the people who haven't
+                    // signed yet, we only want new signatures.
+                    ...comments.filter(c =>
+                        unsigned.some(a => a.id === c.user.id)
+                        && c.body.toUpperCase().match(this.settings.signatureRegex)
+                    )
+                );
+                page += 1
+            } while (comments.length === 100)
+        } catch (error) {
+            throw new Error(`Failed to get PR comments: ${error.message}. Details: ${JSON.stringify(error)}`);
+        }
 
-        // Limit the search space to comments actually made by the people who haven't
-        // signed yet, we only want new signatures.
-        return commentList.data
-            .filter(c => unsigned.some(a => a.id === c.user.id)
-                && c.body.toUpperCase().match(this.settings.signatureRegex))
+        const repoId = await this.getRepoId()
+
+
+        return newSignatures
             .map(comment => ({
                 id: comment.user.id,
                 name: comment.user.login,
