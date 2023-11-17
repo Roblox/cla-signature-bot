@@ -64,7 +64,8 @@ export class ClaRunner {
         const claFile = await this.claFileRepository.getClaFile();
         let authorMap = claFile.mapSignedAuthors(rawAuthors);
 
-        let newSignature = claFile.addSignature(await this.pullComments.getNewSignatures(authorMap));
+        let signatures = await this.pullComments.getNewSignatures(authorMap)
+        let newSignature = claFile.addSignature(signatures);
         if (newSignature.length > 0) {
             const newNames = newSignature.map(s => s.name).join(', ');
             core.debug(`Found new signatures: ${newNames}.`)
