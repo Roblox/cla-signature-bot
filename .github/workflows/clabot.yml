@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: "Run CLA Bot"
         uses: roblox/cla-signature-bot@f420e72f79c73ccbc1b7ec6cb90bbe08f0743da5
+        env: 
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           branch: master
           path-to-signatures: "signatures/cla.json"
