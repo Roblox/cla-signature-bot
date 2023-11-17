@@ -308,7 +308,7 @@ class ClaFileRepository {
                     return [claFile, createResult.data.commit.sha];
                 }
                 else {
-                    throw new Error(`Failed to get CLA file contents: ${error.message}. Details: ${JSON.stringify(error)}`);
+                    throw new Error(`Failed to get CLA file contents: ${error.message}. Details: ${JSON.stringify(error.stack)}`);
                 }
             }
         });
