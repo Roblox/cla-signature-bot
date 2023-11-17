@@ -9,8 +9,15 @@ jobs:
   run-bot:
     runs-on: ubuntu-latest
     steps:
+       - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - name: Npm install
+        run: npm ci
       - name: "Run CLA Bot"
-        uses: roblox/cla-signature-bot@c74f44b6bcdb5077e5f092744b74669b457b2492
+        uses: ./
         env: 
           GITHUB_TOKEN: ${{ github.token }}
         with:
