@@ -30,7 +30,7 @@ jobs:
           url-to-cladocument: "https://roblox.github.io/cla-bot-store/"
 
   call-clabot-workflow:
-    uses: Roblox/cla-signature-bot/.github/workflows/clabot-workflow.yml@c74f44b6bcdb5077e5f092744b74669b457b2492
+    uses: Roblox/cla-signature-bot/.github/workflows/clabot-workflow.yml@3fe9238bd99c78e7b89def37faf6aa89f7cbf2fb
     with:
       whitelist: "cliffchapmanrbx"
       use-remote-repo: true
