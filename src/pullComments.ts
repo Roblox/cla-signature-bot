@@ -35,7 +35,7 @@ export class PullComments {
                 return result.data.body;
             }
         } catch (error) {
-            if (error.status === 403) {
+            if ((error as any).status === 403) {
                 // No permissions to write a comment usually indicates this is running from a fork, so give up
                 // attempting to add or modify the comment.
                 core.warning("Can't add PR comment because this action executed from a fork. Have anyone add a comment to the PR to execute the action from the primary repository context instead of a fork to add the PR comment.");
@@ -55,7 +55,7 @@ export class PullComments {
             });
             return response.data.find(c => c.body.match(this.BotNameRegex));
         } catch (error) {
-            throw new Error(`Failed to get PR comments: ${error.message}. Details: ${JSON.stringify(error)}`);
+            throw new Error(`Failed to get PR comments: ${(error as any).message}. Details: ${JSON.stringify(error)}`);
         }
     }
 

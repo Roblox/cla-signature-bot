@@ -71,7 +71,7 @@ query($owner:String! $name:String! $number:Int! $cursor:String!){
             }
             return result.repository;
         } catch (error) {
-            throw new Error(`GraphQL query to get commit authors failed: '${error.message}'. Details: ${JSON.stringify(error)} `);
+            throw new Error(`GraphQL query to get commit authors failed: '${(error as any).message}'. Details: ${JSON.stringify(error)} `);
         }
     }
 

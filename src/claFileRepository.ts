@@ -61,14 +61,14 @@ export class ClaFileRepository {
             core.debug("Ran into an error fetching CLA file contents.")
 
             // Only want to catch if the result is a response with a 404 error code, indicating no file was found.
-            if (error.status === 404) {
+            if ((error as any).status === 404) {
                 core.debug("Creating CLA file as it does not currently exist.");
                 const claFile = new ClaFile();
                 const createResult = await this.updateClaFile("Creating CLA signature file", claFile);
 
                 return [claFile, createResult.data.commit.sha];
             } else {
-                throw new Error(`Failed to get CLA file contents: ${error.message}. Details: ${JSON.stringify(error)}`);
+                throw new Error(`Failed to get CLA file contents: ${(error as any).message}. Details: ${JSON.stringify(error)}`);
             }
         }
     }
