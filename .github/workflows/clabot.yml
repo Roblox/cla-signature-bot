@@ -7,16 +7,18 @@ on:
 
 jobs:
   run-bot:
-    - name: "Run CLA Bot"
-      uses: roblox/cla-signature-bot@f420e72f79c73ccbc1b7ec6cb90bbe08f0743da5
-      with:
-        branch: master
-        path-to-signatures: "signatures/cla.json"
-        whitelist: "cliffchapmanrbx"
-        use-remote-repo: true
-        remote-repo-name: "roblox/cla-bot-store"
-        remote-repo-pat: ${{ secrets.CLA_REMOTE_REPO_PAT }}
-        url-to-cladocument: "https://roblox.github.io/cla-bot-store/"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Run CLA Bot"
+        uses: roblox/cla-signature-bot@f420e72f79c73ccbc1b7ec6cb90bbe08f0743da5
+        with:
+          branch: master
+          path-to-signatures: "signatures/cla.json"
+          whitelist: "cliffchapmanrbx"
+          use-remote-repo: true
+          remote-repo-name: "roblox/cla-bot-store"
+          remote-repo-pat: ${{ secrets.CLA_REMOTE_REPO_PAT }}
+          url-to-cladocument: "https://roblox.github.io/cla-bot-store/"
 
   call-clabot-workflow:
     uses: Roblox/cla-signature-bot/.github/workflows/clabot-workflow.yml@f420e72f79c73ccbc1b7ec6cb90bbe08f0743da5
