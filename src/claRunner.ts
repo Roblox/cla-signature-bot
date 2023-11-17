@@ -62,8 +62,10 @@ export class ClaRunner {
         core.debug(`Authors: ${rawAuthors.map(n => n.name).join(', ')}`);
 
         const claFile = await this.claFileRepository.getClaFile();
+        core.debug("Mapping signed authors");
         let authorMap = claFile.mapSignedAuthors(rawAuthors);
 
+        core.debug("Getting signatures");
         let signatures = await this.pullComments.getNewSignatures(authorMap)
         let newSignature = claFile.addSignature(signatures);
         if (newSignature.length > 0) {

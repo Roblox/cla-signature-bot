@@ -34,6 +34,7 @@ export class ClaFileRepository {
 
     private async getOrCreateClaFile(): Promise<[ClaFile, string]> {
         core.debug("Getting CLA file from source repository.");
+        core.debug("Test");
         try {
             core.debug("Getting octokit reference from settings.");
             const octokit = this.settings.octokitRemote;
