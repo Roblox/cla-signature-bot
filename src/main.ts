@@ -9,7 +9,7 @@ export async function run() {
         await runner.execute();
         core.info("CLA processing complete.");
     } catch (error) {
-        core.setFailed(`Error: "${error.message}" Details: "${JSON.stringify(error)}"`);
+        core.setFailed(`Error: "${error.message}" Details: "${JSON.stringify(error.stack)}"`);
     }
 }
 run();
