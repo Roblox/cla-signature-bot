@@ -42,10 +42,14 @@ export class ClaFileRepository {
                 ref: this.settings.branch,
             });
 
+            core.debug("Got file result back from API")
+
             // We shouldn't get back an array for this, if we do it's a config problem.
             if (Array.isArray(fileResult.data)) {
                 throw new Error("More than one file was found for the CLA file path. Make sure the CLA file path setting references a single file, not a path.");
             }
+
+            core.debug("Returning file result content and SHA")
 
             // Cache the Sha in case we need to add commits to the operation.
             return [new ClaFile(fileResult.data.content), fileResult.data.sha];
