@@ -51,7 +51,7 @@ query($owner:String! $name:String! $number:Int! $cursor:String!){
 
     public async getAuthors(): Promise<Author[]> {
         const result = await this.queryForCommitAuthors();
-        return result.repository.pullRequest.commits.edges
+        return result.pullRequest.commits.edges
             .map(e => this.getUserFromCommit(e.node.commit)) // Get the authors
             .filter((author: Author, index: number, self: Author[]) => self.findIndex(a => a.name === author.name) === index) // Only unique authors
             .filter((a: Author) => a.id !== 41898282); // And skip accounts with this ID for some reason?
@@ -69,7 +69,7 @@ query($owner:String! $name:String! $number:Int! $cursor:String!){
             if (result.repository.pullRequest.commits.totalCount > 100) {
                 throw new Error("Commit query has more than 100 commits and GraphQL pagination isn't supported yet! Can't validate all of the authors of this PR.")
             }
-            return result;
+            return result.repository;
         } catch (error) {
             throw new Error(`GraphQL query to get commit authors failed: '${error.message}'. Details: ${JSON.stringify(error)} `);
         }
