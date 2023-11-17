@@ -54,6 +54,8 @@ export class ClaFileRepository {
             // Cache the Sha in case we need to add commits to the operation.
             return [new ClaFile(fileResult.data.content), fileResult.data.sha];
         } catch (error) {
+            core.debug("Ran into an error fetching CLA file contents.")
+
             // Only want to catch if the result is a response with a 404 error code, indicating no file was found.
             if (error.status === 404) {
                 core.debug("Creating CLA file as it does not currently exist.");
