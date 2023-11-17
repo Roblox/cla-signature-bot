@@ -35,7 +35,10 @@ export class ClaFileRepository {
     private async getOrCreateClaFile(): Promise<[ClaFile, string]> {
         core.debug("Getting CLA file from source repository.");
         try {
-            const fileResult = await this.settings.octokitRemote.repos.getContent({
+            core.debug("Getting octokit reference from settings.");
+            const octokit = this.settings.octokitRemote;
+            core.debug("Making call to get repository file content.");
+            const fileResult = await octokit.repos.getContent({
                 owner: this.settings.remoteRepositoryOwner,
                 repo: this.settings.remoteRepositoryName,
                 path: this.settings.claFilePath,
