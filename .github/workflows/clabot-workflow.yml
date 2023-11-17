@@ -44,7 +44,7 @@ jobs:
     if: contains(github.event.comment.html_url, '/pull/') || github.event_name != 'issue_comment'
     steps:
       - name: "Run CLA Bot"
-        uses: roblox/cla-signature-bot@26b681856902e0cb0ffb385192a4d0021919a8a4
+        uses: roblox/cla-signature-bot@bf084793c82e37d4a6cee3db2259d9ff4e4dbd82
         env: 
           GITHUB_TOKEN: ${{ github.token }}
         with:
