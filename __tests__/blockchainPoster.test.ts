@@ -1,6 +1,5 @@
 jest.mock('node-fetch', () => jest.fn());
 
-import { mocked } from 'ts-jest/utils';
 import fetch from 'node-fetch';
 const { Response } = jest.requireActual('node-fetch');
 
@@ -9,7 +8,7 @@ import { BlockchainPoster } from "../src/blockchainPoster";
 
 afterEach(() => {
     jest.resetAllMocks();
-    mocked(fetch).mockClear()
+    jest.mocked(fetch).mockClear()
 })
 
 it("Returns early if the flag is false", async () => {
@@ -24,7 +23,7 @@ it("Returns early if the flag is false", async () => {
 });
 
 it("Posts the whole input array", async() => {
-    mocked(fetch).mockImplementation((): Promise<any> => {
+    jest.mocked(fetch).mockImplementation((): Promise<any> => {
         return Promise.resolve({
             json() {
                 return Promise.resolve({success: true});
