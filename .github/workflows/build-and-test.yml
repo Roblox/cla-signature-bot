@@ -1,0 +1,55 @@
+name: Build and Test
+
+on:
+  push:
+   branches:
+    - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Npm install
+        run: npm ci
+
+      - name: Npm build
+        run: npm run build
+      
+      - name: Generate dist
+        run: npm run dist
+      
+      - name: Update dist
+        uses: Roblox-ActionsCache/EndBug-add-and-commit@v7
+        with:
+          author_name: GitHub Actions Bot
+          message: Updates the dist
+          add: dist
+  
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Test CLA Bot Action
+        uses: ./
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          branch: master
+          path-to-signatures: "signatures/cla.json"
+          whitelist: "cliffchapmanrbx"
+          use-remote-repo: true
+          remote-repo-name: "roblox/cla-bot-store"
+          remote-repo-pat: ${{ secrets.CLA_REMOTE_REPO_PAT }}
+          url-to-cladocument: "https://roblox.github.io/cla-bot-store/"
