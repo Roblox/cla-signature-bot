@@ -25,6 +25,9 @@ jobs:
 
       - name: Npm build
         run: npm run build
+
+      - name: Npm test
+        run: npm run test
       
       - name: Generate dist
         run: npm run dist
