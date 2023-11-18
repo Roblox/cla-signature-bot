@@ -34,7 +34,7 @@ export class PullComments {
                 });
                 return result.data.body;
             }
-        } catch (error) {
+        } catch (error: any) {
             if (error.status === 403) {
                 // No permissions to write a comment usually indicates this is running from a fork, so give up
                 // attempting to add or modify the comment.
@@ -54,8 +54,8 @@ export class PullComments {
                 issue_number: this.settings.pullRequestNumber
             });
             return response.data.find(c => c.body.match(this.BotNameRegex));
-        } catch (error) {
-            throw new Error(`Failed to get PR comments: ${error.message}. Details: ${JSON.stringify(error)}`);
+        } catch (error: any) {
+            throw new Error(`Failed to get PR comments: ${error.message}. Details: ${JSON.stringify(error.stack)}`);
         }
     }
 
