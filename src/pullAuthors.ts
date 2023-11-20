@@ -70,8 +70,8 @@ query($owner:String! $name:String! $number:Int! $cursor:String!){
                 throw new Error("Commit query has more than 100 commits and GraphQL pagination isn't supported yet! Can't validate all of the authors of this PR.")
             }
             return result;
-        } catch (error) {
-            throw new Error(`GraphQL query to get commit authors failed: '${error.message}'. Details: ${JSON.stringify(error)} `);
+        } catch (error: any) {
+            throw new Error(`GraphQL query to get commit authors failed: '${error.message}'. Details: ${JSON.stringify(error.stack)} `);
         }
     }
 

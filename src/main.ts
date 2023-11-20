@@ -8,8 +8,8 @@ export async function run() {
         core.info("Starting CLA Assistant GitHub Action");
         await runner.execute();
         core.info("CLA processing complete.");
-    } catch (error) {
-        core.setFailed(`Error: "${error.message}" Details: "${JSON.stringify(error)}"`);
+    } catch (error: any) {
+        core.setFailed(`Error: "${error.message}" Details: "${JSON.stringify(error.stack)}"`);
     }
 }
 run();
