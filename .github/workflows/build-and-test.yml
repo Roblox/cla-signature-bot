@@ -42,6 +42,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     needs: build
+    # CLA bot comments on pull requests and infers PR number from context.
+    # Running on the default branch causes the actiont to fail since it's not running in a PR.
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_target' }}
     steps:
       - uses: actions/checkout@v3
 
