@@ -139,6 +139,7 @@ const repoInfo = {
     "temp_clone_token": "ABTLWHOULUVAXGTRYU7OC2876QJ2O",
     "allow_squash_merge": true,
     "allow_merge_commit": true,
+    "delete_branch_on_merge": true,
     "subscribers_count": 42,
     "network_count": 0,
     "license": {
@@ -275,6 +276,7 @@ const repoInfo = {
         "temp_clone_token": "ABTLWHOULUVAXGTRYU7OC2876QJ2O",
         "allow_squash_merge": true,
         "allow_merge_commit": true,
+        "delete_branch_on_merge": true,
         "subscribers_count": 42,
         "network_count": 0
     },
@@ -385,6 +387,7 @@ const repoInfo = {
         "temp_clone_token": "ABTLWHOULUVAXGTRYU7OC2876QJ2O",
         "allow_squash_merge": true,
         "allow_merge_commit": true,
+        "delete_branch_on_merge": true,
         "subscribers_count": 42,
         "network_count": 0
     }
